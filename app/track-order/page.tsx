@@ -52,40 +52,40 @@ function TrackOrderContent() {
         const lastUpdated = order.lastUpdated ? new Date(order.lastUpdated) : createdDate;
 
         // Map admin status to timeline steps
-        const statusMapping = {
+        const statusMapping: { [key: string]: number } = {
             'confirmed': 1,
             'in-progress': 2,
             'review': 3,
             'completed': 4
         };
 
-        const currentStep = statusMapping[order.status] || 1;
+        const currentStep = statusMapping[order.status as string] || 1;
 
         const statuses = [
-            { 
-                step: 1, 
-                title: 'Order Confirmed', 
+            {
+                step: 1,
+                title: 'Order Confirmed',
                 description: 'Payment received and verified',
                 completed: currentStep >= 1,
                 date: createdDate.toLocaleDateString()
             },
-            { 
-                step: 2, 
-                title: 'In Progress', 
+            {
+                step: 2,
+                title: 'In Progress',
                 description: order.serviceType === 'maintenance' ? 'Maintenance work in progress' : 'Our team is working on your project',
                 completed: currentStep >= 2,
                 date: currentStep >= 2 ? (currentStep === 2 ? lastUpdated.toLocaleDateString() : 'Completed') : 'In progress'
             },
-            { 
-                step: 3, 
-                title: 'Quality Review', 
+            {
+                step: 3,
+                title: 'Quality Review',
                 description: order.serviceType === 'maintenance' ? 'Testing maintenance updates' : 'Testing and quality assurance',
                 completed: currentStep >= 3,
                 date: currentStep >= 3 ? (currentStep === 3 ? lastUpdated.toLocaleDateString() : 'Completed') : 'Pending'
             },
-            { 
-                step: 4, 
-                title: order.serviceType === 'maintenance' ? 'Maintenance Complete' : 'Delivery Ready', 
+            {
+                step: 4,
+                title: order.serviceType === 'maintenance' ? 'Maintenance Complete' : 'Delivery Ready',
                 description: order.serviceType === 'maintenance' ? 'Maintenance work completed successfully' : 'Project ready for deployment',
                 completed: currentStep >= 4,
                 date: currentStep >= 4 ? lastUpdated.toLocaleDateString() : 'Pending'
@@ -199,11 +199,10 @@ function TrackOrderContent() {
                                                 initial={{ scale: 0 }}
                                                 animate={{ scale: 1 }}
                                                 transition={{ delay: index * 0.1 }}
-                                                className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-white ${
-                                                    status.completed
+                                                className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-white ${status.completed
                                                         ? 'bg-gradient-to-r from-green-500 to-emerald-600'
                                                         : 'bg-gradient-to-r from-gray-300 to-gray-400'
-                                                }`}
+                                                    }`}
                                             >
                                                 {status.completed ? (
                                                     <FiCheckCircle className="w-6 h-6" />
