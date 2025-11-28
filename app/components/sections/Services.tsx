@@ -1,11 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { SERVICES as services } from '@/app/lib/constants';
 import Link from 'next/link';
 
 export default function Services() {
+    const [isAutoPlay, setIsAutoPlay] = useState(true);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
     const colorMap: Record<string, string> = {
         'blue': '#0066FF',
         'green': '#10B981',
@@ -23,6 +27,37 @@ export default function Services() {
         'indigo': 'from-indigo-500 to-indigo-600',
         'slate': 'from-slate-500 to-slate-600',
     };
+
+    // Handle scroll events to pause animation
+    useEffect(() => {
+        const handleWheel = (e: WheelEvent) => {
+            if (scrollContainerRef.current?.contains(e.target as Node)) {
+                setIsAutoPlay(false);
+                // Resume auto-play after 3 seconds of inactivity
+                const timer = setTimeout(() => setIsAutoPlay(true), 3000);
+                return () => clearTimeout(timer);
+            }
+        };
+
+        const handleTouchStart = () => {
+            setIsAutoPlay(false);
+        };
+
+        const handleTouchEnd = () => {
+            const timer = setTimeout(() => setIsAutoPlay(true), 3000);
+            return () => clearTimeout(timer);
+        };
+
+        window.addEventListener('wheel', handleWheel, { passive: true });
+        scrollContainerRef.current?.addEventListener('touchstart', handleTouchStart);
+        scrollContainerRef.current?.addEventListener('touchend', handleTouchEnd);
+
+        return () => {
+            window.removeEventListener('wheel', handleWheel);
+            scrollContainerRef.current?.removeEventListener('touchstart', handleTouchStart);
+            scrollContainerRef.current?.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, []);
 
     return (
         <section id="services" className="section-padding bg-gradient-to-b from-white to-gray-50">
@@ -60,26 +95,35 @@ export default function Services() {
                 </div>
 
                 {/* Services Scrolling Animation - Like Calendly */}
-                <div className="relative overflow-hidden">
+                <div ref={containerRef} className="relative overflow-hidden">
                     {/* Gradient Overlays */}
                     <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none" />
                     <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none" />
 
-                    {/* Infinite Scrolling Container */}
-                    <motion.div
-                        className="flex gap-8"
-                        animate={{
-                            x: [0, -100 * services.length - 100],
-                        }}
-                        transition={{
-                            x: {
-                                repeat: Infinity,
-                                repeatType: "loop",
-                                duration: 30,
-                                ease: "linear",
-                            },
+                    {/* Scrollable Container */}
+                    <div 
+                        ref={scrollContainerRef}
+                        className="overflow-x-auto overflow-y-hidden scrollbar-hide"
+                        style={{
+                            scrollBehavior: 'smooth',
+                            WebkitOverflowScrolling: 'touch'
                         }}
                     >
+                        {/* Infinite Scrolling Container */}
+                        <motion.div
+                            className="flex gap-8 pb-4"
+                            animate={isAutoPlay ? {
+                                x: [0, -100 * services.length - 100],
+                            } : {}}
+                            transition={isAutoPlay ? {
+                                x: {
+                                    repeat: Infinity,
+                                    repeatType: "loop",
+                                    duration: 30,
+                                    ease: "linear",
+                                },
+                            } : {}}
+                        >
                         {/* Duplicate services for seamless loop */}
                         {[...services, ...services, ...services].map((service, index) => {
                             const Icon = service.icon;
@@ -123,7 +167,8 @@ export default function Services() {
                                 </div>
                             );
                         })}
-                    </motion.div>
+                        </motion.div>
+                    </div>
                 </div>
             </div>
         </section>

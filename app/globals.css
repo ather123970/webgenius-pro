@@ -188,6 +188,15 @@ h6 {
   .card-hover {
     @apply transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl;
   }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* 3D Card Effect */

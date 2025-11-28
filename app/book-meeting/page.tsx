@@ -12,6 +12,11 @@ function BookMeetingContent() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
+    // Initialize EmailJS
+    useEffect(() => {
+        emailjs.init('NP2Sat5tqcJqQqoQ2');
+    }, []);
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -33,10 +38,10 @@ function BookMeetingContent() {
         setIsSubmitting(true);
 
         try {
-            // Send email via EmailJS (same credentials as OrderForm)
-            const result = await emailjs.send(
+            // Send booking confirmation to customer
+            const customerResult = await emailjs.send(
                 'service_bopwq39', // Your Service ID
-                'template_1ubs0z8', // Your Template ID
+                'template_wkgimvt', // Your Booking Template ID
                 {
                     from_name: formData.name,
                     from_email: formData.email,
@@ -52,7 +57,30 @@ function BookMeetingContent() {
                 'NP2Sat5tqcJqQqoQ2' // Your Public Key
             );
 
-            console.log('Meeting request sent via email:', result.text);
+            console.log('Customer booking confirmation sent:', customerResult.text);
+
+            // Send booking notification to business email
+            const businessResult = await emailjs.send(
+                'service_bopwq39', // Your Service ID
+                'template_wkgimvt', // Same Booking Template ID
+                {
+                    from_name: formData.name,
+                    from_email: formData.email,
+                    phone: formData.phone,
+                    company: formData.company || 'Not provided',
+                    service: formData.service || 'Not specified',
+                    budget: formData.package || 'Not specified',
+                    description: formData.message || 'No additional message',
+                    deadline: `${formData.preferredDate || 'Flexible'} at ${formData.preferredTime || 'Flexible time'}`,
+                    order_date: new Date().toLocaleString(),
+                    meeting_type: 'Consultation Meeting Request',
+                    to_email: 'businessman2124377@gmail.com', // Business email for admin notification
+                    notification_type: 'ADMIN_NOTIFICATION'
+                },
+                'NP2Sat5tqcJqQqoQ2' // Your Public Key
+            );
+
+            console.log('Business booking notification sent:', businessResult.text);
             setIsSubmitting(false);
             setIsSuccess(true);
 

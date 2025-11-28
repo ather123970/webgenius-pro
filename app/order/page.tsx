@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { FiCheck, FiArrowRight, FiShoppingCart } from 'react-icons/fi';
@@ -9,6 +9,16 @@ import { HiCode, HiColorSwatch, HiSearchCircle, HiSparkles } from 'react-icons/h
 
 export default function OrderPage() {
     const [selectedService, setSelectedService] = useState<string | null>(null);
+    const packagesRef = useRef<HTMLDivElement>(null);
+
+    // Auto-scroll to packages when service is selected
+    useEffect(() => {
+        if (selectedService && packagesRef.current) {
+            setTimeout(() => {
+                packagesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+    }, [selectedService]);
 
     const services = [
         {
@@ -33,18 +43,34 @@ export default function OrderPage() {
                 },
                 {
                     name: 'Business Store',
-                    price: '50,000',
+                    price: '45,000',
+                    popular: true,
                     features: [
-                        'Custom Shopify theme design',
-                        'Unlimited products',
-                        'Advanced payment integrations',
-                        'Custom features & apps',
-                        'Advanced SEO & analytics',
-                        'Email marketing setup',
-                        '3 months support',
+                        'Professional Shopify theme',
+                        'Product catalog setup',
+                        'Payment gateway integration',
+                        'Basic customization',
+                        'Mobile responsive',
+                        'SEO setup',
                     ],
-                    delivery: '3-4 weeks',
-                    popular: true
+                    delivery: '2-3 weeks'
+                },
+                {
+                    name: 'Ecommerce Launch Pack',
+                    price: '32,500',
+                    features: [
+                        'Full Ecommerce Website (Shopify or Custom)',
+                        '10–20 Products Upload',
+                        'Categories, Filters & Checkout Setup',
+                        'Payment Gateway Integration',
+                        'Order + Inventory Management System',
+                        'SEO-Optimized Product Pages',
+                        'Clean, Minimal UI',
+                        'Mobile-First Layout',
+                        'Basic Analytics Integration',
+                    ],
+                    delivery: '2-3 weeks',
+                    badge: 'Most Popular'
                 },
                 {
                     name: 'Enterprise Store',
@@ -313,6 +339,7 @@ export default function OrderPage() {
                 {/* Packages */}
                 {selectedService && (
                     <motion.div
+                        ref={packagesRef}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="mb-16"
@@ -333,9 +360,9 @@ export default function OrderPage() {
                                             : 'border-gray-200 bg-white'
                                         }`}
                                 >
-                                    {pkg.popular && (
+                                    {(pkg.popular || pkg.badge) && (
                                         <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 py-1 rounded-full text-sm font-black">
-                                            MOST POPULAR
+                                            {pkg.badge || 'MOST POPULAR'}
                                         </div>
                                     )}
 
@@ -359,7 +386,7 @@ export default function OrderPage() {
                                     </ul>
 
                                     <Link
-                                        href={`/book-meeting?service=${selectedService}&package=${pkg.name}`}
+                                        href={`/?service=${selectedService}&package=${pkg.name}#order`}
                                         className={`block w-full py-4 rounded-xl font-black text-center transition-all ${pkg.popular
                                                 ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg hover:shadow-xl hover:scale-105'
                                                 : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
