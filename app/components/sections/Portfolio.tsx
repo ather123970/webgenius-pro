@@ -9,6 +9,7 @@ import Image from 'next/image';
 
 export default function Portfolio() {
     const [selectedCase, setSelectedCase] = useState<typeof portfolio[0] | null>(null);
+    const [isPaused, setIsPaused] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const sectionRef = useRef<HTMLDivElement>(null);
     const isInView = useInView(sectionRef, { once: true });
@@ -19,6 +20,54 @@ export default function Portfolio() {
             controls.start('visible');
         }
     }, [isInView, controls]);
+
+    // Auto-scroll effect for infinite carousel
+    useEffect(() => {
+        const scrollContainer = scrollRef.current;
+        if (!scrollContainer || isPaused) return;
+
+        let animationFrameId: number;
+        let scrollPosition = 0;
+        const scrollSpeed = 0.5; // pixels per frame
+
+        const scroll = () => {
+            if (!scrollContainer || isPaused) return;
+
+            scrollPosition += scrollSpeed;
+            scrollContainer.scrollLeft = scrollPosition;
+
+            // Reset to beginning when reaching the end for infinite effect
+            if (scrollPosition >= scrollContainer.scrollWidth / 2) {
+                scrollPosition = 0;
+            }
+
+            animationFrameId = requestAnimationFrame(scroll);
+        };
+
+        animationFrameId = requestAnimationFrame(scroll);
+
+        return () => {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+        };
+    }, [isPaused]);
+
+    // Scroll to Chronos project on mount
+    useEffect(() => {
+        const scrollContainer = scrollRef.current;
+        if (scrollContainer) {
+            // Find Chronos (id: 2) index
+            const chronosIndex = portfolio.findIndex(p => p.id === 2);
+            if (chronosIndex !== -1) {
+                const cardWidth = 600; // md:w-[600px]
+                const gap = 32; // gap-8 = 32px
+                setTimeout(() => {
+                    scrollContainer.scrollLeft = chronosIndex * (cardWidth + gap);
+                }, 100);
+            }
+        }
+    }, []);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -45,6 +94,9 @@ export default function Portfolio() {
         }
     };
 
+    // Duplicate portfolio items for infinite scroll effect
+    const duplicatedPortfolio = [...portfolio, ...portfolio];
+
     return (
         <>
             <section id="portfolio" className="section-padding bg-gradient-to-b from-white via-blue-50/20 to-white overflow-hidden" ref={sectionRef}>
@@ -67,7 +119,7 @@ export default function Portfolio() {
                             transition={{ delay: 0.1 }}
                             className="text-5xl md:text-7xl font-black text-gray-900 mb-6 leading-tight"
                         >
-                            Success <span className="text-gradient-blue">Stories</span>
+                            Live <span className="text-gradient-blue">Projects</span>
                         </motion.h2>
 
                         <motion.p
@@ -77,31 +129,48 @@ export default function Portfolio() {
                             transition={{ delay: 0.2 }}
                             className="text-xl text-gray-600 leading-relaxed"
                         >
-                            3 premium projects that showcase our expertise in creating <br className="hidden md:block" />
-                            stunning, high-performance digital experiences.
+                            Explore our collection of <span className="font-bold text-gray-900">9 premium projects</span> that showcase our expertise in design and development.
                         </motion.p>
                     </div>
 
-                    {/* Horizontal Scroll Container */}
+                    {/* Infinite Scroll Container */}
                     <motion.div
                         ref={scrollRef}
                         variants={containerVariants}
                         initial="hidden"
                         animate={controls}
-                        className="flex gap-8 overflow-x-auto pb-8 scrollbar-hide snap-x snap-mandatory"
+                        onMouseEnter={() => setIsPaused(true)}
+                        onMouseLeave={() => setIsPaused(false)}
+                        className="flex gap-8 overflow-x-auto pb-8 scrollbar-hide"
                         style={{
                             scrollbarWidth: 'none',
                             msOverflowStyle: 'none'
                         }}
                     >
-                        {portfolio.map((item, index) => (
+                        {duplicatedPortfolio.map((item, index) => (
                             <motion.div
-                                key={item.id}
+                                key={`${item.id}-${index}`}
                                 variants={cardVariants}
-                                className="group cursor-pointer flex-shrink-0 w-[85vw] md:w-[600px] snap-center"
+                                className="group cursor-pointer flex-shrink-0 w-[85vw] md:w-[600px]"
                                 onClick={() => setSelectedCase(item)}
+                                whileHover={{
+                                    y: -10,
+                                    rotateX: 5,
+                                    rotateY: 5,
+                                    transition: { duration: 0.3 }
+                                }}
+                                style={{
+                                    perspective: 1000,
+                                    transformStyle: 'preserve-3d'
+                                }}
                             >
-                                <div className="relative rounded-3xl overflow-hidden bg-white border-2 border-gray-200 hover:border-blue-400 transition-all duration-300 shadow-xl hover:shadow-2xl h-full">
+                                <div
+                                    className="relative rounded-3xl overflow-hidden bg-white border-2 border-gray-200 hover:border-blue-400 transition-all duration-300 h-full"
+                                    style={{
+                                        boxShadow: '0 20px 60px -12px rgba(0, 0, 0, 0.25), 0 30px 40px -20px rgba(59, 130, 246, 0.3)',
+                                        transform: 'translateZ(0)'
+                                    }}
+                                >
                                     {/* Image Container */}
                                     <div className="aspect-[16/10] overflow-hidden relative bg-gradient-to-br from-gray-900 to-gray-700">
                                         {/* Category Badge */}
@@ -158,18 +227,16 @@ export default function Portfolio() {
                                             ))}
                                         </div>
                                     </div>
+
+                                    {/* 3D Shadow at bottom */}
+                                    <div
+                                        className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-[90%] h-8 bg-gradient-to-b from-blue-600/20 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                        style={{ transform: 'translateZ(-50px)' }}
+                                    />
                                 </div>
                             </motion.div>
                         ))}
                     </motion.div>
-
-                    {/* Scroll Indicator */}
-                    <div className="text-center mt-12">
-                        <p className="text-sm text-gray-500 font-medium flex items-center justify-center gap-2">
-                            <FiArrowRight className="animate-pulse" />
-                            Scroll right to see more projects
-                        </p>
-                    </div>
                 </div>
             </section>
 

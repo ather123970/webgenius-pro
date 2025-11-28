@@ -9,7 +9,7 @@ A private admin dashboard for managing orders, updating tracking status, and not
 ## 🔑 **Access Information**
 
 ### **URL:** `http://localhost:3000/admin`
-### **Password:** `webgenius2024`
+### **Password:** `2124377as`
 
 ### **Security Features:**
 - 🔒 Password-protected access
@@ -59,7 +59,7 @@ A private admin dashboard for managing orders, updating tracking status, and not
 
 ### **Step 1: Access Dashboard**
 1. Go to: `http://localhost:3000/admin`
-2. Enter password: `webgenius2024`
+2. Enter password: `2124377as`
 3. Click "Access Dashboard"
 
 ### **Step 2: Search Order**

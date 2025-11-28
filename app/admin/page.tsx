@@ -66,13 +66,22 @@ export default function AdminDashboard() {
             // Update order in localStorage
             const updatedOrders = orders.map(order => 
                 order.orderId === selectedOrder.orderId 
-                    ? { ...order, status: newStatus, lastUpdated: new Date().toISOString(), adminNote: customNote }
+                    ? { ...order, status: newStatus, lastUpdated: new Date().toISOString(), adminNote: customNote, progressUpdated: true }
                     : order
             );
 
             localStorage.setItem('orders', JSON.stringify(updatedOrders));
             setOrders(updatedOrders);
-            setSelectedOrder({ ...selectedOrder, status: newStatus, lastUpdated: new Date().toISOString(), adminNote: customNote });
+            
+            // Update selected order with progress tracking
+            const updatedOrder = { 
+                ...selectedOrder, 
+                status: newStatus, 
+                lastUpdated: new Date().toISOString(), 
+                adminNote: customNote,
+                progressUpdated: true
+            };
+            setSelectedOrder(updatedOrder);
 
             // Send notification email to customer
             await emailjs.send(

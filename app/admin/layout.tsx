@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { FiLock, FiEye, FiEyeOff, FiShield } from 'react-icons/fi';
 
 // Simple password protection - in production, use proper auth
-const ADMIN_PASSWORD = 'webgenius2024';
+const ADMIN_PASSWORD = '2124377as';
 
 export default function AdminLayout({
     children,

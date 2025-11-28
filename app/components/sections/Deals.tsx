@@ -151,7 +151,7 @@ export default function Deals() {
                         transition={{ delay: 0.2 }}
                         className="text-xl text-gray-600 max-w-3xl mx-auto"
                     >
-                        Transparent pricing tailored to your region. No hidden fees.
+                        Flexible packages designed for every budget. Quality you deserve, pricing you'll love.
                     </motion.p>
                 </div>
 

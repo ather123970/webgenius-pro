@@ -44,7 +44,7 @@ export default function Header() {
                             </div>
                         </div>
                         <span className="text-2xl font-black text-gray-900">
-                            Ather<span className="text-blue-600">Web</span>
+                            Ather<span className="text-blue-600">Techy</span>
                         </span>
                     </Link>
 

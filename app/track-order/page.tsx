@@ -49,37 +49,46 @@ function TrackOrderContent() {
     // Order status timeline
     const getOrderStatus = (order: any) => {
         const createdDate = new Date(order.createdAt);
-        const now = new Date();
-        const daysDiff = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+        const lastUpdated = order.lastUpdated ? new Date(order.lastUpdated) : createdDate;
+
+        // Map admin status to timeline steps
+        const statusMapping = {
+            'confirmed': 1,
+            'in-progress': 2,
+            'review': 3,
+            'completed': 4
+        };
+
+        const currentStep = statusMapping[order.status] || 1;
 
         const statuses = [
             { 
                 step: 1, 
                 title: 'Order Confirmed', 
                 description: 'Payment received and verified',
-                completed: true,
+                completed: currentStep >= 1,
                 date: createdDate.toLocaleDateString()
             },
             { 
                 step: 2, 
-                title: 'In Development', 
-                description: 'Our team is working on your project',
-                completed: daysDiff >= 1,
-                date: daysDiff >= 1 ? new Date(createdDate.getTime() + 1 * 24 * 60 * 60 * 1000).toLocaleDateString() : 'In progress'
+                title: 'In Progress', 
+                description: order.serviceType === 'maintenance' ? 'Maintenance work in progress' : 'Our team is working on your project',
+                completed: currentStep >= 2,
+                date: currentStep >= 2 ? (currentStep === 2 ? lastUpdated.toLocaleDateString() : 'Completed') : 'In progress'
             },
             { 
                 step: 3, 
                 title: 'Quality Review', 
-                description: 'Testing and quality assurance',
-                completed: daysDiff >= 7,
-                date: daysDiff >= 7 ? new Date(createdDate.getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString() : 'Pending'
+                description: order.serviceType === 'maintenance' ? 'Testing maintenance updates' : 'Testing and quality assurance',
+                completed: currentStep >= 3,
+                date: currentStep >= 3 ? (currentStep === 3 ? lastUpdated.toLocaleDateString() : 'Completed') : 'Pending'
             },
             { 
                 step: 4, 
-                title: 'Delivery Ready', 
-                description: 'Project ready for deployment',
-                completed: daysDiff >= 14,
-                date: daysDiff >= 14 ? new Date(createdDate.getTime() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString() : 'Pending'
+                title: order.serviceType === 'maintenance' ? 'Maintenance Complete' : 'Delivery Ready', 
+                description: order.serviceType === 'maintenance' ? 'Maintenance work completed successfully' : 'Project ready for deployment',
+                completed: currentStep >= 4,
+                date: currentStep >= 4 ? lastUpdated.toLocaleDateString() : 'Pending'
             },
         ];
 

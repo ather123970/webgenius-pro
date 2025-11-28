@@ -32,6 +32,12 @@ const PACKAGES = {
         '70k-150k': { min: 70000, max: 150000, advance: 21000 },
         '150k-300k': { min: 150000, max: 300000, advance: 45000 },
         '300k+': { min: 300000, max: 999999, advance: 90000 }
+    },
+    'maintenance': {
+        '30k-70k': { min: 30000, max: 70000, advance: 9000 },
+        '70k-150k': { min: 70000, max: 150000, advance: 21000 },
+        '150k-300k': { min: 150000, max: 300000, advance: 45000 },
+        '300k+': { min: 300000, max: 999999, advance: 90000 }
     }
 };
 
@@ -56,11 +62,11 @@ export default function OrderFormNew() {
     // Initialize EmailJS and handle URL parameters
     useEffect(() => {
         emailjs.init('NP2Sat5tqcJqQqoQ2');
-        
+
         // Pre-fill form from URL parameters
         const service = searchParams.get('service');
         const packageParam = searchParams.get('package');
-        
+
         if (service || packageParam) {
             setFormData(prev => ({
                 ...prev,
@@ -71,16 +77,17 @@ export default function OrderFormNew() {
     }, [searchParams]);
 
     const [formData, setFormData] = useState({
-        name: '', 
-        email: '', 
-        company: '', 
-        phone: '', 
-        serviceType: '', 
-        budget: '', 
-        description: '', 
-        deadline: '', 
+        name: '',
+        email: '',
+        company: '',
+        phone: '',
+        serviceType: '',
+        budget: '',
+        description: '',
+        deadline: '',
         paymentAmount: '',
         paymentProof: null as File | null,
+        paymentProofUrl: '',
         files: null as FileList | null
     });
 
@@ -92,9 +99,20 @@ export default function OrderFormNew() {
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fileType: 'paymentProof' | 'files') => {
         if (fileType === 'paymentProof' && e.target.files?.[0]) {
-            setFormData({ ...formData, paymentProof: e.target.files[0] });
+            const file = e.target.files[0];
+            const url = URL.createObjectURL(file);
+            setFormData({ ...formData, paymentProof: file, paymentProofUrl: url });
         } else if (fileType === 'files') {
             setFormData({ ...formData, files: e.target.files });
+        }
+    };
+
+    const handleReplacePaymentProof = () => {
+        setFormData({ ...formData, paymentProof: null, paymentProofUrl: '' });
+        // Reset file input
+        const fileInput = document.getElementById('paymentProof') as HTMLInputElement;
+        if (fileInput) {
+            fileInput.value = '';
         }
     };
 
@@ -133,7 +151,7 @@ export default function OrderFormNew() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         // Validate payment
         if (!validatePayment()) {
             setIsSubmitting(false);
@@ -213,10 +231,10 @@ export default function OrderFormNew() {
             setTimeout(() => {
                 setIsSuccess(false);
                 setStep(1);
-                setFormData({ 
-                    name: '', email: '', company: '', phone: '', serviceType: '', 
-                    budget: '', description: '', deadline: '', paymentAmount: '', 
-                    paymentProof: null, files: null 
+                setFormData({
+                    name: '', email: '', company: '', phone: '', serviceType: '',
+                    budget: '', description: '', deadline: '', paymentAmount: '',
+                    paymentProof: null, paymentProofUrl: '', files: null
                 });
             }, 5000);
         } catch (error: any) {
@@ -248,7 +266,7 @@ export default function OrderFormNew() {
 
             <div className="max-w-5xl mx-auto px-6 relative z-10">
                 {/* Header */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center mb-16"
@@ -267,7 +285,7 @@ export default function OrderFormNew() {
                 </motion.div>
 
                 {/* Progress Steps */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
@@ -278,25 +296,22 @@ export default function OrderFormNew() {
                             <React.Fragment key={s.id}>
                                 <div className="flex items-center">
                                     <motion.div
-                                        className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition-all ${
-                                            step >= s.id 
-                                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' 
+                                        className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition-all ${step >= s.id
+                                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
                                                 : 'bg-gray-200 text-gray-500'
-                                        }`}
+                                            }`}
                                         whileHover={{ scale: 1.1 }}
                                     >
                                         <s.icon className="w-5 h-5" />
                                     </motion.div>
-                                    <span className={`ml-3 font-medium text-sm ${
-                                        step >= s.id ? 'text-gray-900' : 'text-gray-500'
-                                    }`}>
+                                    <span className={`ml-3 font-medium text-sm ${step >= s.id ? 'text-gray-900' : 'text-gray-500'
+                                        }`}>
                                         {s.title}
                                     </span>
                                 </div>
                                 {index < steps.length - 1 && (
-                                    <div className={`w-12 h-0.5 mx-4 ${
-                                        step > s.id ? 'bg-gradient-to-r from-blue-600 to-purple-600' : 'bg-gray-300'
-                                    }`} />
+                                    <div className={`w-12 h-0.5 mx-4 ${step > s.id ? 'bg-gradient-to-r from-blue-600 to-purple-600' : 'bg-gray-300'
+                                        }`} />
                                 )}
                             </React.Fragment>
                         ))}
@@ -304,7 +319,7 @@ export default function OrderFormNew() {
                 </motion.div>
 
                 {/* Form Card */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
@@ -321,15 +336,40 @@ export default function OrderFormNew() {
                             </div>
                             <h3 className="text-4xl font-black text-gray-900 mb-4">Order Confirmed! 🎉</h3>
                             <p className="text-xl text-gray-600 mb-8">Your project is now in our expert hands. We'll be in touch within 24 hours.</p>
-                            
+
                             {/* Order ID Display */}
                             <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 mb-8 border-2 border-blue-200 max-w-md mx-auto">
                                 <p className="text-sm text-gray-600 font-bold mb-2">Your Order ID</p>
-                                <p className="text-3xl font-black text-blue-600 break-all">{orderId}</p>
+                                <div className="flex items-center justify-between gap-4">
+                                    <p
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(orderId);
+                                            alert('✅ Order ID copied to clipboard!');
+                                        }}
+                                        className="text-2xl md:text-3xl font-black text-blue-600 break-all cursor-pointer hover:text-blue-700 transition-colors"
+                                        title="Click to copy"
+                                    >
+                                        {orderId}
+                                    </p>
+                                    <button
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(orderId);
+                                            alert('✅ Order ID copied to clipboard!');
+                                        }}
+                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-all flex items-center gap-2 whitespace-nowrap text-sm"
+                                        title="Copy to clipboard"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                        </svg>
+                                        Copy
+                                    </button>
+                                </div>
                                 <p className="text-sm text-gray-500 mt-3">Save this ID to track your order</p>
                             </div>
 
-                            <Link 
+
+                            <Link
                                 href={`/track-order?id=${orderId}`}
                                 className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-purple-700 transition-all hover:scale-105 shadow-xl"
                             >
@@ -351,68 +391,68 @@ export default function OrderFormNew() {
                                         className="space-y-8"
                                     >
                                         <h3 className="text-3xl font-black text-gray-900 mb-8">Contact Information</h3>
-                                        
+
                                         <div className="grid md:grid-cols-2 gap-8">
                                             <div className="space-y-2">
                                                 <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
                                                     <FiUser className="w-4 h-4" />
                                                     Full Name *
                                                 </label>
-                                                <input 
-                                                    type="text" 
-                                                    name="name" 
-                                                    required 
-                                                    value={formData.name} 
+                                                <input
+                                                    type="text"
+                                                    name="name"
+                                                    required
+                                                    value={formData.name}
                                                     onChange={handleChange}
                                                     className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium"
-                                                    placeholder="John Doe" 
+                                                    placeholder="John Doe"
                                                 />
                                             </div>
-                                            
+
                                             <div className="space-y-2">
                                                 <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
                                                     <FiMail className="w-4 h-4" />
                                                     Email Address *
                                                 </label>
-                                                <input 
-                                                    type="email" 
-                                                    name="email" 
-                                                    required 
-                                                    value={formData.email} 
+                                                <input
+                                                    type="email"
+                                                    name="email"
+                                                    required
+                                                    value={formData.email}
                                                     onChange={handleChange}
                                                     className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium"
-                                                    placeholder="john@example.com" 
+                                                    placeholder="john@example.com"
                                                 />
                                             </div>
-                                            
+
                                             <div className="space-y-2">
                                                 <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
                                                     <FiPhone className="w-4 h-4" />
                                                     Phone Number *
                                                 </label>
-                                                <input 
-                                                    type="tel" 
-                                                    name="phone" 
-                                                    required 
-                                                    value={formData.phone} 
+                                                <input
+                                                    type="tel"
+                                                    name="phone"
+                                                    required
+                                                    value={formData.phone}
                                                     onChange={handleChange}
                                                     className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium"
-                                                    placeholder="+92 300 1234567" 
+                                                    placeholder="+92 300 1234567"
                                                 />
                                             </div>
-                                            
+
                                             <div className="space-y-2">
                                                 <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
                                                     <FiBriefcase className="w-4 h-4" />
                                                     Company Name
                                                 </label>
-                                                <input 
-                                                    type="text" 
-                                                    name="company" 
-                                                    value={formData.company} 
+                                                <input
+                                                    type="text"
+                                                    name="company"
+                                                    value={formData.company}
                                                     onChange={handleChange}
                                                     className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium"
-                                                    placeholder="Acme Inc." 
+                                                    placeholder="Acme Inc."
                                                 />
                                             </div>
                                         </div>
@@ -429,14 +469,14 @@ export default function OrderFormNew() {
                                         className="space-y-8"
                                     >
                                         <h3 className="text-3xl font-black text-gray-900 mb-8">Project Details</h3>
-                                        
+
                                         <div className="grid md:grid-cols-2 gap-8">
                                             <div className="space-y-2">
                                                 <label className="text-sm font-bold text-gray-700">Service Type *</label>
-                                                <select 
-                                                    name="serviceType" 
-                                                    required 
-                                                    value={formData.serviceType} 
+                                                <select
+                                                    name="serviceType"
+                                                    required
+                                                    value={formData.serviceType}
                                                     onChange={handleChange}
                                                     className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium"
                                                 >
@@ -445,15 +485,16 @@ export default function OrderFormNew() {
                                                     <option value="shopify">Shopify Store</option>
                                                     <option value="seo">SEO Services</option>
                                                     <option value="design">UI/UX Design</option>
+                                                    <option value="maintenance">Maintenance Services</option>
                                                 </select>
                                             </div>
-                                            
+
                                             <div className="space-y-2">
                                                 <label className="text-sm font-bold text-gray-700">Budget Range *</label>
-                                                <select 
-                                                    name="budget" 
-                                                    required 
-                                                    value={formData.budget} 
+                                                <select
+                                                    name="budget"
+                                                    required
+                                                    value={formData.budget}
                                                     onChange={handleChange}
                                                     className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium"
                                                 >
@@ -465,32 +506,32 @@ export default function OrderFormNew() {
                                                 </select>
                                             </div>
                                         </div>
-                                        
+
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
                                                 <FiFileText className="w-4 h-4" />
                                                 Project Description *
                                             </label>
-                                            <textarea 
-                                                name="description" 
-                                                required 
-                                                value={formData.description} 
+                                            <textarea
+                                                name="description"
+                                                required
+                                                value={formData.description}
                                                 onChange={handleChange}
                                                 rows={4}
                                                 className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium resize-none"
                                                 placeholder="Tell us about your project requirements..."
                                             />
                                         </div>
-                                        
+
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
                                                 <FiCalendar className="w-4 h-4" />
                                                 Expected Deadline
                                             </label>
-                                            <input 
-                                                type="date" 
-                                                name="deadline" 
-                                                value={formData.deadline} 
+                                            <input
+                                                type="date"
+                                                name="deadline"
+                                                value={formData.deadline}
                                                 onChange={handleChange}
                                                 className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium"
                                             />
@@ -508,7 +549,7 @@ export default function OrderFormNew() {
                                         className="space-y-8"
                                     >
                                         <h3 className="text-3xl font-black text-gray-900 mb-8">Payment Information</h3>
-                                        
+
                                         {/* Payment Summary */}
                                         {formData.serviceType && formData.budget && (
                                             <div className="space-y-6">
@@ -528,7 +569,7 @@ export default function OrderFormNew() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                
+
                                                 {/* Payment breakdown */}
                                                 <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
                                                     <p className="text-xs font-bold text-gray-600 mb-4">PAYMENT BREAKDOWN</p>
@@ -554,39 +595,99 @@ export default function OrderFormNew() {
                                                 <FiCreditCard className="w-4 h-4" />
                                                 Amount Paid (PKR) *
                                             </label>
-                                            <input 
-                                                type="number" 
-                                                name="paymentAmount" 
-                                                required 
-                                                value={formData.paymentAmount} 
+                                            <input
+                                                type="number"
+                                                name="paymentAmount"
+                                                required
+                                                value={formData.paymentAmount}
                                                 onChange={handleChange}
                                                 className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium"
-                                                placeholder="Enter amount paid" 
+                                                placeholder="Enter amount paid"
                                             />
                                         </div>
 
-                                        {/* Payment proof upload */}
+                                        {/* Bank Details */}
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                                <FiCreditCard className="w-4 h-4" />
+                                                Bank Transfer Details
+                                            </label>
+                                            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl p-6">
+                                                <div className="space-y-3 text-sm">
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-600 font-medium">Bank:</span>
+                                                        <span className="font-bold text-gray-900">MEEZAN DIGITAL CENTRE</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-600 font-medium">Account Title:</span>
+                                                        <span className="font-bold text-gray-900">ASIYA PARVEEN</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-600 font-medium">Account Number:</span>
+                                                        <span className="font-bold text-gray-900">00300112941126</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-600 font-medium">IBAN:</span>
+                                                        <span className="font-bold text-gray-900">PK68MEZN0000300112941126</span>
+                                                    </div>
+                                                </div>
+                                                <div className="mt-4 p-3 bg-green-100 rounded-lg">
+                                                    <p className="text-xs text-green-800 font-medium">
+                                                        💡 Please transfer the advance payment amount and upload the payment receipt/screenshot below
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Payment proof upload with preview */}
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
                                                 <FiUpload className="w-4 h-4" />
                                                 Payment Proof Screenshot *
                                             </label>
-                                            <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-500 transition-colors">
-                                                <input 
-                                                    type="file" 
-                                                    accept="image/*"
-                                                    onChange={(e) => handleFileChange(e, 'paymentProof')}
-                                                    className="hidden" 
-                                                    id="paymentProof"
-                                                />
-                                                <label htmlFor="paymentProof" className="cursor-pointer">
-                                                    <FiUpload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                                                    <p className="text-gray-600 font-medium">
-                                                        {formData.paymentProof ? formData.paymentProof.name : 'Click to upload payment screenshot'}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500 mt-2">JPG, PNG up to 10MB</p>
-                                                </label>
-                                            </div>
+
+                                            {formData.paymentProofUrl ? (
+                                                <div className="border-2 border-blue-300 rounded-xl p-4 bg-blue-50">
+                                                    <div className="relative">
+                                                        <img
+                                                            src={formData.paymentProofUrl}
+                                                            alt="Payment Proof"
+                                                            className="w-full h-64 object-contain rounded-lg bg-white"
+                                                        />
+                                                        <div className="absolute top-2 right-2">
+                                                            <button
+                                                                type="button"
+                                                                onClick={handleReplacePaymentProof}
+                                                                className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors flex items-center gap-2"
+                                                            >
+                                                                <FiUpload className="w-4 h-4" />
+                                                                Replace
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div className="mt-3 text-center">
+                                                        <p className="text-sm text-gray-700 font-medium">{formData.paymentProof?.name}</p>
+                                                        <p className="text-xs text-gray-500">Payment proof uploaded successfully</p>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-500 transition-colors">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => handleFileChange(e, 'paymentProof')}
+                                                        className="hidden"
+                                                        id="paymentProof"
+                                                    />
+                                                    <label htmlFor="paymentProof" className="cursor-pointer">
+                                                        <FiUpload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                                                        <p className="text-gray-600 font-medium">
+                                                            Click to upload payment screenshot
+                                                        </p>
+                                                        <p className="text-xs text-gray-500 mt-2">JPG, PNG up to 10MB</p>
+                                                    </label>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Payment Error */}
@@ -613,16 +714,16 @@ export default function OrderFormNew() {
                                         className="space-y-8"
                                     >
                                         <h3 className="text-3xl font-black text-gray-900 mb-8">Final Details</h3>
-                                        
+
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
                                                 <FiCalendar className="w-4 h-4" />
                                                 Project Deadline
                                             </label>
-                                            <input 
-                                                type="date" 
-                                                name="deadline" 
-                                                value={formData.deadline} 
+                                            <input
+                                                type="date"
+                                                name="deadline"
+                                                value={formData.deadline}
                                                 onChange={handleChange}
                                                 className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium"
                                             />
@@ -635,11 +736,11 @@ export default function OrderFormNew() {
                                                 Additional Files (Optional)
                                             </label>
                                             <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-500 transition-colors">
-                                                <input 
-                                                    type="file" 
+                                                <input
+                                                    type="file"
                                                     multiple
                                                     onChange={(e) => handleFileChange(e, 'files')}
-                                                    className="hidden" 
+                                                    className="hidden"
                                                     id="additionalFiles"
                                                 />
                                                 <label htmlFor="additionalFiles" className="cursor-pointer">
@@ -690,7 +791,7 @@ export default function OrderFormNew() {
                                         Back
                                     </button>
                                 )}
-                                
+
                                 <div className="ml-auto">
                                     {step < 4 ? (
                                         <button

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FiArrowRight, FiCalendar, FiShoppingCart } from 'react-icons/fi';
@@ -9,12 +9,12 @@ import { SiShopify } from 'react-icons/si';
 import { HiCode, HiColorSwatch, HiSearchCircle } from 'react-icons/hi';
 
 // Counter animation hook
-function useCounter(end: number, duration: number = 2000) {
+function useCounter(end: number, duration: number = 2000, start: boolean = true) {
     const [count, setCount] = useState(0);
     const [hasAnimated, setHasAnimated] = useState(false);
 
     useEffect(() => {
-        if (hasAnimated) return;
+        if (hasAnimated || !start) return;
 
         let startTime: number;
         let animationFrame: number;
@@ -34,7 +34,7 @@ function useCounter(end: number, duration: number = 2000) {
 
         animationFrame = requestAnimationFrame(animate);
         return () => cancelAnimationFrame(animationFrame);
-    }, [end, duration, hasAnimated]);
+    }, [end, duration, hasAnimated, start]);
 
     return count;
 }
@@ -43,7 +43,10 @@ export default function Hero() {
     const { scrollY } = useScroll();
     const y1 = useTransform(scrollY, [0, 300], [0, 100]);
     const y2 = useTransform(scrollY, [0, 300], [0, -50]);
-    const revenue = useCounter(450, 2500);
+
+    const counterRef = React.useRef(null);
+    const isCounterInView = useInView(counterRef, { once: true, margin: "-100px" });
+    const revenue = useCounter(450, 2500, isCounterInView);
 
     const services = [
         { icon: 'shopify', label: "Shopify", count: "20+" },
@@ -379,7 +382,7 @@ export default function Hero() {
 
                                         {/* Revenue */}
                                         <div className="flex items-center justify-between gap-3">
-                                            <div className="min-w-0">
+                                            <div className="min-w-0" ref={counterRef}>
                                                 <div className="text-xs md:text-sm text-gray-600 font-bold mb-1 md:mb-2">Total Revenue</div>
                                                 <div className="text-5xl md:text-6xl lg:text-7xl font-black bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-700 bg-clip-text text-transparent">
                                                     ${revenue}K

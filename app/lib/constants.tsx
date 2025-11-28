@@ -6,6 +6,7 @@ export const NAV_LINKS = [
     { name: 'Portfolio', href: '#portfolio' },
     { name: 'Pricing', href: '#pricing' },
     { name: 'Team', href: '#team' },
+    { name: 'Track Order', href: '/track-order' },
     { name: 'Contact', href: '#contact' },
 ];
 
@@ -452,16 +453,16 @@ export const PORTFOLIO_ITEMS = [
     },
     {
         id: 2,
-        title: 'Watch Store PK',
+        title: 'Chronos Watches',
         category: 'E-commerce',
-        image: '/portfolio/watchstore.png',
+        image: '/portfolio/chronos_watches.png',
         client: 'Live Store',
         niche: 'Luxury Watches',
         description: 'Premium online watch boutique with elegant design, product filtering, and seamless shopping experience.',
         problem: 'Needed an elegant e-commerce platform to showcase and sell premium luxury timepieces online.',
         solution: ['Premium UI Design', 'Advanced Product Filters', 'Responsive Layout', 'Secure Checkout'],
         results: { sales: 'Active', conversion: '4.2%', products: '100+ items' },
-        liveUrl: 'http://watchstorepk.onrender.com'
+        liveUrl: 'https://watchstorepk.onrender.com'
     },
     {
         id: 3,
@@ -498,6 +499,54 @@ export const PORTFOLIO_ITEMS = [
         problem: 'Portfolio wasn\'t effectively highlighting their premium design services.',
         solution: ['Interactive Case Studies', 'Motion Design', 'Clean Typography', 'Responsive Grid System'],
         results: { projects: '100+ leads', engagement: '+220%', bookings: '+150%' }
+    },
+    {
+        id: 6,
+        title: 'AirPods Pro Landing',
+        category: 'Product Landing',
+        image: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?q=80&w=2070&auto=format&fit=crop',
+        client: 'TechGiant Inc',
+        niche: 'Consumer Electronics',
+        description: 'Apple-inspired product landing page featuring scroll-triggered animations and 3D product visualizations.',
+        problem: 'Needed a high-converting landing page to launch their new premium audio product.',
+        solution: ['Scroll-Linked Animations', '3D Product Viewer', 'Smooth Parallax Effects', 'Minimalist Layout'],
+        results: { sales: 'Record Breaking', conversion: '8.5%', bounce: 'Low' }
+    },
+    {
+        id: 7,
+        title: 'PayFlow SaaS Platform',
+        category: 'SaaS Dashboard',
+        image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop',
+        client: 'FinTech Solutions',
+        niche: 'Financial Technology',
+        description: 'Modern financial dashboard with real-time data visualization, dark mode, and glassmorphism UI.',
+        problem: 'Users struggled with complex data visualization in the legacy system.',
+        solution: ['Real-time Charts', 'Glassmorphism UI', 'Dark/Light Mode', 'Intuitive Navigation'],
+        results: { retention: '+40%', speed: '2x Faster', satisfaction: '4.9/5' }
+    },
+    {
+        id: 8,
+        title: 'NeonVerse NFT Market',
+        category: 'Web3 Platform',
+        image: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1974&auto=format&fit=crop',
+        client: 'CryptoArt DAO',
+        niche: 'Digital Assets',
+        description: 'Futuristic NFT marketplace with neon aesthetics, holographic cards, and seamless wallet integration.',
+        problem: 'Existing marketplaces felt corporate and lacked the "Web3 vibe" users wanted.',
+        solution: ['Neon Glass UI', 'Wallet Connect', 'Live Auctions', '3D Asset Preview'],
+        results: { volume: '$2M+', users: '15k+', community: 'Viral' }
+    },
+    {
+        id: 9,
+        title: 'EcoSmart Home App',
+        category: 'IoT Dashboard',
+        image: 'https://images.unsplash.com/photo-1558002038-1091a166111c?q=80&w=2070&auto=format&fit=crop',
+        client: 'GreenLiving Tech',
+        niche: 'Smart Home',
+        description: 'Clean, nature-inspired dashboard for managing smart home energy, security, and automation.',
+        problem: 'Users found existing apps too technical and cluttered.',
+        solution: ['Minimalist Design', 'Energy Visualization', 'One-Tap Controls', 'Voice Integration'],
+        results: { savings: '30% avg', adoption: 'Fast', rating: '4.8/5' }
     }
 ];
 

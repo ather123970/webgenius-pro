@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { FiCheck, FiArrowRight, FiShoppingCart } from 'react-icons/fi';
+import { FiCheck, FiArrowRight, FiShoppingCart, FiMessageCircle } from 'react-icons/fi';
 import { SiShopify } from 'react-icons/si';
 import { HiCode, HiColorSwatch, HiSearchCircle, HiSparkles } from 'react-icons/hi';
 
@@ -424,6 +424,53 @@ export default function OrderPage() {
                         Schedule Free Consultation
                         <FiArrowRight className="w-5 h-5" />
                     </Link>
+                </motion.div>
+
+                {/* WhatsApp Button */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+                    className="fixed bottom-8 right-8 z-50"
+                >
+                    <motion.a
+                        href="https://wa.me/923434153736?text=Hi!%20I'm%20interested%20in%20your%20services.%20Can%20you%20assist%20me%20with%20the%20next%20steps?"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-full shadow-2xl hover:shadow-green-500/50 transition-all duration-300 group"
+                    >
+                        <img 
+                            src="https://raw.githubusercontent.com/ather123970/webgenius-pro/main/whatsapplogo.avif" 
+                            alt="WhatsApp" 
+                            className="w-8 h-8 object-contain"
+                        />
+                        
+                        {/* Pulse animation */}
+                        <motion.span
+                            animate={{
+                                scale: [1, 1.2, 1],
+                                opacity: [1, 0.7, 1],
+                            }}
+                            transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                            className="absolute inset-0 rounded-full bg-green-400 opacity-0 group-hover:opacity-30"
+                        />
+                    </motion.a>
+                    
+                    {/* Tooltip */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        whileHover={{ opacity: 1, x: 0 }}
+                        className="absolute right-20 top-1/2 -translate-y-1/2 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap pointer-events-none"
+                    >
+                        Chat with us on WhatsApp!
+                        <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-0 h-0 border-t-8 border-t-transparent border-l-8 border-l-gray-900 border-b-8 border-b-transparent"></div>
+                    </motion.div>
                 </motion.div>
             </div>
         </div>
