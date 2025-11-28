@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+    metadataBase: new URL('https://athertechy.onrender.com'),
     title: "AtherTechy - Premium Web Development & Shopify Agency | Pakistan",
     description: "Leading software agency in Pakistan specializing in custom web apps, Shopify stores, UI/UX design, SEO optimization, and AI solutions. Turn your ideas into profitable digital products with expert React, Next.js, and e-commerce development.",
     keywords: [
