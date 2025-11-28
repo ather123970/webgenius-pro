@@ -54,7 +54,7 @@ export default function AdminDashboard() {
         }
 
         setLoading(false);
-        setTimeout(() => setNotification({ show: false }), 3000);
+        setTimeout(() => setNotification({ show: false, message: '', type: '' }), 3000);
     };
 
     const updateOrderStatus = async (newStatus: string, customNote?: string) => {
@@ -106,7 +106,7 @@ export default function AdminDashboard() {
         }
 
         setLoading(false);
-        setTimeout(() => setNotification({ show: false }), 3000);
+        setTimeout(() => setNotification({ show: false, message: '', type: '' }), 3000);
     };
 
     const getStatusInfo = (status: string) => {
