@@ -46,9 +46,12 @@ export const metadata: Metadata = {
     publisher: "AtherTechy",
 
     icons: {
-        icon: '/faviicon.png',
+        icon: [
+            { url: '/favicon.ico' },
+            { url: '/faviicon.png', type: 'image/png' }
+        ],
         apple: '/faviicon.png',
-        shortcut: '/faviicon.png',
+        shortcut: '/favicon.ico',
     },
 
     manifest: "/manifest.json",
