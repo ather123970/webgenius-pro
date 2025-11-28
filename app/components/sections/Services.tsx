@@ -101,7 +101,7 @@ export default function Services() {
                     <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none" />
 
                     {/* Scrollable Container */}
-                    <div 
+                    <div
                         ref={scrollContainerRef}
                         className="overflow-x-auto overflow-y-hidden scrollbar-hide"
                         style={{
@@ -124,49 +124,49 @@ export default function Services() {
                                 },
                             } : {}}
                         >
-                        {/* Duplicate services for seamless loop */}
-                        {[...services, ...services, ...services].map((service, index) => {
-                            const Icon = service.icon;
-                            return (
-                                <div
-                                    key={`${service.id}-${index}`}
-                                    className="flex-shrink-0 w-80 group relative"
-                                >
-                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl opacity-0 group-hover:opacity-20 blur transition-opacity" />
-                                    <div className="relative h-full p-8 rounded-3xl bg-white border-2 border-gray-100 hover:border-blue-200 transition-all duration-300 flex flex-col shadow-lg hover:shadow-2xl hover:-translate-y-1">
-                                        <div
-                                            className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all"
-                                            style={{
-                                                background: `linear-gradient(135deg, ${service.color}20, ${service.color}40)`,
-                                                color: colorMap[service.color] || '#0066FF'
-                                            }}
-                                        >
-                                            <Icon className="w-8 h-8" />
+                            {/* Duplicate services for seamless loop */}
+                            {[...services, ...services, ...services].map((service, index) => {
+                                const Icon = service.icon;
+                                return (
+                                    <div
+                                        key={`${service.id}-${index}`}
+                                        className="flex-shrink-0 w-80 group relative"
+                                    >
+                                        <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl opacity-0 group-hover:opacity-20 blur transition-opacity" />
+                                        <div className="relative h-full p-8 rounded-3xl bg-white border-2 border-gray-100 hover:border-blue-200 transition-all duration-300 flex flex-col shadow-lg hover:shadow-2xl hover:-translate-y-1">
+                                            <div
+                                                className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all"
+                                                style={{
+                                                    background: `linear-gradient(135deg, ${service.color}20, ${service.color}40)`,
+                                                    color: colorMap[service.color] || '#0066FF'
+                                                }}
+                                            >
+                                                <Icon className="w-8 h-8" />
+                                            </div>
+                                            <h3 className="text-2xl font-black text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                                                {service.title}
+                                            </h3>
+                                            <p className="text-gray-600 mb-6 leading-relaxed flex-grow">
+                                                {service.description}
+                                            </p>
+                                            <ul className="space-y-2 mb-6">
+                                                {service.features.slice(0, 3).map((feature) => (
+                                                    <li key={feature} className="text-sm text-gray-700 font-medium flex items-start gap-2">
+                                                        <span className="text-blue-600 mt-0.5">✓</span>
+                                                        <span>{feature}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                            <Link
+                                                href={`/services/${service.id}`}
+                                                className={`py-4 rounded-xl font-black text-sm text-white bg-gradient-to-r ${bgColorMap[service.color] || 'from-blue-500 to-blue-600'} hover:shadow-xl transition-all hover:scale-105 text-center`}
+                                            >
+                                                Order Now
+                                            </Link>
                                         </div>
-                                        <h3 className="text-2xl font-black text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
-                                            {service.title}
-                                        </h3>
-                                        <p className="text-gray-600 mb-6 leading-relaxed flex-grow">
-                                            {service.description}
-                                        </p>
-                                        <ul className="space-y-2 mb-6">
-                                            {service.features.slice(0, 3).map((feature) => (
-                                                <li key={feature} className="text-sm text-gray-700 font-medium flex items-start gap-2">
-                                                    <span className="text-blue-600 mt-0.5">✓</span>
-                                                    <span>{feature}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                        <Link
-                                            href={`/services/${service.id}`}
-                                            className={`py-4 rounded-xl font-black text-sm text-white bg-gradient-to-r ${bgColorMap[service.color] || 'from-blue-500 to-blue-600'} hover:shadow-xl transition-all hover:scale-105 text-center`}
-                                        >
-                                            Learn More
-                                        </Link>
                                     </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
                         </motion.div>
                     </div>
                 </div>

@@ -9,37 +9,64 @@ import emailjs from '@emailjs/browser';
 
 // Package pricing configuration
 const PACKAGES = {
-    'web-app': {
-        '30k-70k': { min: 30000, max: 70000, advance: 9000 },
-        '70k-150k': { min: 70000, max: 150000, advance: 21000 },
-        '150k-300k': { min: 150000, max: 300000, advance: 45000 },
-        '300k+': { min: 300000, max: 999999, advance: 90000 }
+    'design': { // UI/UX Design
+        'Affordable': { price: 20000, advance: 6000 },
+        'Branded Pro': { price: 50000, advance: 15000 },
+        'Branded Premium': { price: 90000, advance: 27000 },
+        'Exclusive Basic': { price: 120000, advance: 36000 },
+        'Exclusive Pro': { price: 250000, advance: 75000 },
+        'Exclusive Premium': { price: 450000, advance: 135000 }
     },
-    'shopify': {
-        '30k-70k': { min: 30000, max: 70000, advance: 9000 },
-        '70k-150k': { min: 70000, max: 150000, advance: 21000 },
-        '150k-300k': { min: 150000, max: 300000, advance: 45000 },
-        '300k+': { min: 300000, max: 999999, advance: 90000 }
+    'seo': { // SEO & Growth
+        'Affordable': { price: 15000, advance: 4500 },
+        'Branded Pro': { price: 40000, advance: 12000 },
+        'Branded Premium': { price: 75000, advance: 22500 },
+        'Exclusive Basic': { price: 100000, advance: 30000 },
+        'Exclusive Pro': { price: 200000, advance: 60000 },
+        'Exclusive Premium': { price: 400000, advance: 120000 }
     },
-    'seo': {
-        '30k-70k': { min: 30000, max: 70000, advance: 9000 },
-        '70k-150k': { min: 70000, max: 150000, advance: 21000 },
-        '150k-300k': { min: 150000, max: 300000, advance: 45000 },
-        '300k+': { min: 300000, max: 999999, advance: 90000 }
+    'ai': { // AI Integration
+        'Affordable': { price: 20000, advance: 6000 },
+        'Branded Pro': { price: 50000, advance: 15000 },
+        'Branded Premium': { price: 100000, advance: 30000 },
+        'Exclusive Basic': { price: 150000, advance: 45000 },
+        'Exclusive Pro': { price: 300000, advance: 90000 },
+        'Exclusive Premium': { price: 500000, advance: 150000 }
     },
-    'design': {
-        '30k-70k': { min: 30000, max: 70000, advance: 9000 },
-        '70k-150k': { min: 70000, max: 150000, advance: 21000 },
-        '150k-300k': { min: 150000, max: 300000, advance: 45000 },
-        '300k+': { min: 300000, max: 999999, advance: 90000 }
+    'maintenance': { // Maintenance & Support
+        'Affordable': { price: 8000, advance: 2400 },
+        'Branded Pro': { price: 20000, advance: 6000 },
+        'Branded Premium': { price: 35000, advance: 10500 },
+        'Exclusive Basic': { price: 50000, advance: 15000 },
+        'Exclusive Pro': { price: 100000, advance: 30000 },
+        'Exclusive Premium': { price: 180000, advance: 54000 }
     },
-    'maintenance': {
-        '30k-70k': { min: 30000, max: 70000, advance: 9000 },
-        '70k-150k': { min: 70000, max: 150000, advance: 21000 },
-        '150k-300k': { min: 150000, max: 300000, advance: 45000 },
-        '300k+': { min: 300000, max: 999999, advance: 90000 }
+    'web-app': { // Custom Web Applications
+        'Affordable': { price: 25000, advance: 7500 },
+        'Branded Pro': { price: 49000, advance: 14700 },
+        'Branded Premium': { price: 100000, advance: 30000 },
+        'Exclusive Basic': { price: 250000, advance: 75000 },
+        'Exclusive Pro': { price: 500000, advance: 150000 },
+        'Exclusive Premium': { price: 900000, advance: 270000 }
+    },
+    'shopify': { // Shopify Stores
+        'Affordable': { price: 30000, advance: 9000 },
+        'Branded Pro': { price: 70000, advance: 21000 },
+        'Branded Premium': { price: 130000, advance: 39000 },
+        'Exclusive Basic': { price: 180000, advance: 54000 },
+        'Exclusive Pro': { price: 350000, advance: 105000 },
+        'Exclusive Premium': { price: 500000, advance: 150000 }
     }
 };
+
+const ADDONS = [
+    { id: 'seo_basic', name: 'On-Page SEO', price: 5000, desc: 'Basic SEO optimization for all pages' },
+    { id: 'priority', name: 'Priority Support', price: 15000, desc: '24/7 dedicated support line' },
+    { id: 'speed', name: 'Speed Optimization', price: 8000, desc: 'Score 90+ on Google PageSpeed' },
+    { id: 'content', name: 'Content Writing', price: 10000, desc: 'Professional content for 5 pages' },
+    { id: 'security', name: 'Advanced Security', price: 12000, desc: 'Firewall & Malware Protection' },
+    { id: 'analytics', name: 'Analytics Setup', price: 5000, desc: 'Google Analytics 4 & Search Console' }
+];
 
 // Generate unique Order ID
 const generateOrderId = () => {
@@ -67,11 +94,14 @@ export default function OrderFormNew() {
         const service = searchParams.get('service');
         const packageParam = searchParams.get('package');
 
-        if (service || packageParam) {
+        if (service) {
             setFormData(prev => ({
                 ...prev,
-                serviceType: service || '',
-                budget: packageParam || ''
+                serviceType: service,
+                // Try to match package if provided, otherwise empty
+                budget: packageParam && PACKAGES[service as keyof typeof PACKAGES] &&
+                    Object.keys(PACKAGES[service as keyof typeof PACKAGES]).includes(packageParam)
+                    ? packageParam : ''
             }));
         }
     }, [searchParams]);
@@ -82,14 +112,34 @@ export default function OrderFormNew() {
         company: '',
         phone: '',
         serviceType: '',
-        budget: '',
+        budget: '', // Now acts as 'Package Name'
         description: '',
         deadline: '',
         paymentAmount: '',
         paymentProof: null as File | null,
         paymentProofUrl: '',
-        files: null as FileList | null
+        files: null as FileList | null,
+        addons: [] as string[]
     });
+
+    const toggleAddon = (addonId: string) => {
+        setFormData(prev => {
+            const newAddons = prev.addons.includes(addonId)
+                ? prev.addons.filter(id => id !== addonId)
+                : [...prev.addons, addonId];
+            return { ...prev, addons: newAddons };
+        });
+    };
+
+    const calculateTotal = () => {
+        if (!formData.serviceType || !formData.budget) return 0;
+        const basePrice = PACKAGES[formData.serviceType as keyof typeof PACKAGES]?.[formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]]?.price || 0;
+        const addonsPrice = formData.addons.reduce((total, addonId) => {
+            const addon = ADDONS.find(a => a.id === addonId);
+            return total + (addon?.price || 0);
+        }, 0);
+        return basePrice + addonsPrice;
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -137,7 +187,7 @@ export default function OrderFormNew() {
         const requiredThousands = getThousands(requiredAdvance);
 
         if (paymentThousands !== requiredThousands) {
-            setPaymentError(`Payment mismatch! Required: PKR ${requiredAdvance} (${requiredThousands}k), You entered: PKR ${paymentAmount} (${paymentThousands}k)`);
+            setPaymentError(`Payment mismatch! Required Advance: PKR ${requiredAdvance}, You entered: PKR ${paymentAmount}`);
             return false;
         }
 
@@ -148,6 +198,14 @@ export default function OrderFormNew() {
 
         return true;
     };
+
+    // Convert file to Base64
+    const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = error => reject(error);
+    });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -163,69 +221,131 @@ export default function OrderFormNew() {
         setOrderId(newOrderId);
 
         try {
-            // Send order confirmation email to customer
-            const customerResult = await emailjs.send(
-                'service_bopwq39', // Your Service ID
-                'template_1ubs0z8', // Your Template ID (Order Confirmation Template)
-                {
-                    order_id: newOrderId,
-                    from_name: formData.name,
-                    from_email: formData.email,
-                    phone: formData.phone || 'Not provided',
-                    company: formData.company || 'Not provided',
-                    service: formData.serviceType,
-                    budget: formData.budget,
-                    advance_payment: PACKAGES[formData.serviceType as keyof typeof PACKAGES]?.[formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]]?.advance || 0,
-                    payment_received: formData.paymentAmount,
-                    description: formData.description,
-                    deadline: formData.deadline || 'Not specified',
-                    order_date: new Date().toLocaleString(),
-                    order_status: 'Confirmed - Payment Received',
-                    tracking_link: `https://atherweb.agency/track-order?id=${newOrderId}`
-                },
-                'NP2Sat5tqcJqQqoQ2' // Your Public Key
-            );
+            // Convert payment proof to base64
+            let paymentProofBase64 = '';
+            if (formData.paymentProof) {
+                try {
+                    paymentProofBase64 = await toBase64(formData.paymentProof);
+                } catch (err) {
+                    console.error('Error converting file to base64:', err);
+                }
+            }
 
-            console.log('Customer confirmation sent:', customerResult.text);
+            // 1. Save to Database (CRITICAL - must succeed)
+            try {
+                const dbResponse = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        orderId: newOrderId,
+                        name: formData.name,
+                        email: formData.email,
+                        phone: formData.phone,
+                        company: formData.company,
+                        serviceType: formData.serviceType,
+                        budget: formData.budget,
+                        description: formData.description,
+                        deadline: formData.deadline,
+                        paymentAmount: parseInt(formData.paymentAmount),
+                        paymentProof: paymentProofBase64,
+                        addons: formData.addons,
+                        totalPrice: calculateTotal(),
+                        status: 'confirmed'
+                    }),
+                });
 
-            // Send order notification to business email
-            const businessResult = await emailjs.send(
-                'service_bopwq39', // Your Service ID
-                'template_1ubs0z8', // Same Template ID (or create separate admin template)
-                {
-                    order_id: newOrderId,
-                    from_name: formData.name,
-                    from_email: formData.email,
-                    phone: formData.phone || 'Not provided',
-                    company: formData.company || 'Not provided',
-                    service: formData.serviceType,
-                    budget: formData.budget,
-                    advance_payment: PACKAGES[formData.serviceType as keyof typeof PACKAGES]?.[formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]]?.advance || 0,
-                    payment_received: formData.paymentAmount,
-                    description: formData.description,
-                    deadline: formData.deadline || 'Not specified',
-                    order_date: new Date().toLocaleString(),
-                    order_status: 'Confirmed - Payment Received',
-                    tracking_link: `https://atherweb.agency/track-order?id=${newOrderId}`,
-                    to_email: 'businessman2124377@gmail.com', // Business email for admin notification
-                    notification_type: 'ADMIN_NOTIFICATION'
-                },
-                'NP2Sat5tqcJqQqoQ2' // Your Public Key
-            );
+                if (!dbResponse.ok) {
+                    const errorData = await dbResponse.json();
+                    console.warn('Database save failed:', errorData.error);
+                    // Continue anyway - we'll save to localStorage as backup
+                }
+            } catch (dbError) {
+                console.error('Database error:', dbError);
+                // Continue anyway - we'll save to localStorage as backup
+            }
 
-            console.log('Business notification sent:', businessResult.text);
-            setIsSubmitting(false);
-            setIsSuccess(true);
+            // 2. Send emails (OPTIONAL - don't block on email failures)
+            try {
+                // Send order confirmation email to customer
+                await emailjs.send(
+                    'service_bopwq39',
+                    'template_1ubs0z8',
+                    {
+                        order_id: newOrderId,
+                        from_name: formData.name,
+                        from_email: formData.email,
+                        phone: formData.phone || 'Not provided',
+                        company: formData.company || 'Not provided',
+                        service: formData.serviceType,
+                        budget: formData.budget,
+                        advance_payment: PACKAGES[formData.serviceType as keyof typeof PACKAGES]?.[formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]]?.advance || 0,
+                        payment_received: formData.paymentAmount,
+                        addons: formData.addons.map(id => ADDONS.find(a => a.id === id)?.name).join(', ') || 'None',
+                        total_price: calculateTotal(),
+                        description: formData.description,
+                        deadline: formData.deadline || 'Not specified',
+                        order_date: new Date().toLocaleString(),
+                        order_status: 'Confirmed - Payment Received',
+                        tracking_link: `https://atherweb.agency/track-order?id=${newOrderId}`
+                    },
+                    'NP2Sat5tqcJqQqoQ2'
+                );
+                console.log('✅ Customer email sent');
+            } catch (emailError: any) {
+                console.warn('⚠️ Customer email failed:', emailError.text || emailError.message);
+                // Don't block the order - email is nice to have but not required
+            }
 
-            // Store order in localStorage for tracking
+            try {
+                // Send notification to business
+                await emailjs.send(
+                    'service_bopwq39',
+                    'template_1ubs0z8',
+                    {
+                        order_id: newOrderId,
+                        from_name: formData.name,
+                        from_email: formData.email,
+                        phone: formData.phone || 'Not provided',
+                        company: formData.company || 'Not provided',
+                        service: formData.serviceType,
+                        budget: formData.budget,
+                        advance_payment: PACKAGES[formData.serviceType as keyof typeof PACKAGES]?.[formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]]?.advance || 0,
+                        payment_received: formData.paymentAmount,
+                        addons: formData.addons.map(id => ADDONS.find(a => a.id === id)?.name).join(', ') || 'None',
+                        total_price: calculateTotal(),
+                        description: formData.description,
+                        deadline: formData.deadline || 'Not specified',
+                        order_date: new Date().toLocaleString(),
+                        order_status: 'Confirmed - Payment Received',
+                        tracking_link: `https://atherweb.agency/track-order?id=${newOrderId}`,
+                        to_email: 'businessman2124377@gmail.com',
+                        notification_type: 'ADMIN_NOTIFICATION'
+                    },
+                    'NP2Sat5tqcJqQqoQ2'
+                );
+                console.log('✅ Business email sent');
+            } catch (emailError: any) {
+                console.warn('⚠️ Business email failed:', emailError.text || emailError.message);
+                // Don't block the order
+            }
+
+            // Store order in localStorage (BACKUP - always succeeds)
             const orders = JSON.parse(localStorage.getItem('orders') || '[]');
             orders.push({
                 orderId: newOrderId,
                 ...formData,
+                totalPrice: calculateTotal(),
                 status: 'Confirmed',
                 createdAt: new Date().toISOString()
             });
             localStorage.setItem('orders', JSON.stringify(orders));
+            console.log('✅ Order saved to localStorage backup');
+
+            // Success! Show confirmation
+            setIsSubmitting(false);
+            setIsSuccess(true);
 
             // Reset form after 5 seconds
             setTimeout(() => {
@@ -234,14 +354,14 @@ export default function OrderFormNew() {
                 setFormData({
                     name: '', email: '', company: '', phone: '', serviceType: '',
                     budget: '', description: '', deadline: '', paymentAmount: '',
-                    paymentProof: null, paymentProofUrl: '', files: null
+                    paymentProof: null, paymentProofUrl: '', files: null, addons: []
                 });
             }, 5000);
         } catch (error: any) {
-            console.error('Failed to send order:', error);
+            console.error('❌ Order submission failed:', error);
             setIsSubmitting(false);
             const errorMessage = error?.text || error?.message || 'Unknown error occurred';
-            alert(`Failed to send order: ${errorMessage}\n\nPlease try again or contact us directly via WhatsApp.`);
+            alert(`Failed to submit order: ${errorMessage}\n\nPlease try again or contact us directly via WhatsApp at +92 343 4153736`);
         }
     };
 
@@ -297,8 +417,8 @@ export default function OrderFormNew() {
                                 <div className="flex items-center">
                                     <motion.div
                                         className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition-all ${step >= s.id
-                                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                                                : 'bg-gray-200 text-gray-500'
+                                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                                            : 'bg-gray-200 text-gray-500'
                                             }`}
                                         whileHover={{ scale: 1.1 }}
                                     >
@@ -477,32 +597,39 @@ export default function OrderFormNew() {
                                                     name="serviceType"
                                                     required
                                                     value={formData.serviceType}
-                                                    onChange={handleChange}
+                                                    onChange={(e) => {
+                                                        setFormData({ ...formData, serviceType: e.target.value, budget: '' });
+                                                    }}
                                                     className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium"
                                                 >
                                                     <option value="">Select Service</option>
-                                                    <option value="web-app">Web Application</option>
-                                                    <option value="shopify">Shopify Store</option>
-                                                    <option value="seo">SEO Services</option>
+                                                    <option value="web-app">Custom Web Applications</option>
+                                                    <option value="shopify">Shopify Stores</option>
+                                                    <option value="seo">SEO & Growth</option>
                                                     <option value="design">UI/UX Design</option>
-                                                    <option value="maintenance">Maintenance Services</option>
+                                                    <option value="ai">AI Integration</option>
+                                                    <option value="maintenance">Maintenance & Support</option>
                                                 </select>
                                             </div>
 
                                             <div className="space-y-2">
-                                                <label className="text-sm font-bold text-gray-700">Budget Range *</label>
+                                                <label className="text-sm font-bold text-gray-700">Select Package *</label>
                                                 <select
                                                     name="budget"
                                                     required
                                                     value={formData.budget}
                                                     onChange={handleChange}
-                                                    className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium"
+                                                    disabled={!formData.serviceType}
+                                                    className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium disabled:bg-gray-100 disabled:text-gray-400"
                                                 >
-                                                    <option value="">Select Budget</option>
-                                                    <option value="30k-70k">30k - 70k</option>
-                                                    <option value="70k-150k">70k - 150k</option>
-                                                    <option value="150k-300k">150k - 300k</option>
-                                                    <option value="300k+">300k+</option>
+                                                    <option value="">{formData.serviceType ? 'Select a Package' : 'Select Service First'}</option>
+                                                    {formData.serviceType && PACKAGES[formData.serviceType as keyof typeof PACKAGES] &&
+                                                        Object.entries(PACKAGES[formData.serviceType as keyof typeof PACKAGES]).map(([pkgName, pkgDetails]) => (
+                                                            <option key={pkgName} value={pkgName}>
+                                                                {pkgName} - PKR {pkgDetails.price.toLocaleString()}
+                                                            </option>
+                                                        ))
+                                                    }
                                                 </select>
                                             </div>
                                         </div>
@@ -551,7 +678,7 @@ export default function OrderFormNew() {
                                         <h3 className="text-3xl font-black text-gray-900 mb-8">Payment Information</h3>
 
                                         {/* Payment Summary */}
-                                        {formData.serviceType && formData.budget && (
+                                        {formData.serviceType && formData.budget && PACKAGES[formData.serviceType as keyof typeof PACKAGES]?.[formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]] && (
                                             <div className="space-y-6">
                                                 <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-300 rounded-2xl p-8">
                                                     <div className="grid md:grid-cols-2 gap-6">
@@ -559,11 +686,14 @@ export default function OrderFormNew() {
                                                             <p className="text-xs text-gray-600 font-bold uppercase tracking-wide mb-2">Your Selected Package</p>
                                                             <p className="text-2xl font-black text-gray-900 mb-1">{formData.budget}</p>
                                                             <p className="text-sm text-gray-600 capitalize">{formData.serviceType.replace('-', ' ')}</p>
+                                                            <p className="text-lg font-bold text-blue-600 mt-2">
+                                                                Total: PKR {PACKAGES[formData.serviceType as keyof typeof PACKAGES][formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]].price.toLocaleString()}
+                                                            </p>
                                                         </div>
                                                         <div className="border-l-2 border-blue-200 pl-6">
                                                             <p className="text-xs text-blue-700 font-bold uppercase tracking-wide mb-2">💰 Advance Payment Required</p>
                                                             <p className="text-4xl font-black text-blue-600">
-                                                                PKR {PACKAGES[formData.serviceType as keyof typeof PACKAGES]?.[formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]]?.advance || 0}
+                                                                PKR {PACKAGES[formData.serviceType as keyof typeof PACKAGES][formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]].advance.toLocaleString()}
                                                             </p>
                                                             <p className="text-xs text-blue-600 font-bold mt-2">30% of total package</p>
                                                         </div>
@@ -575,13 +705,21 @@ export default function OrderFormNew() {
                                                     <p className="text-xs font-bold text-gray-600 mb-4">PAYMENT BREAKDOWN</p>
                                                     <div className="space-y-3 text-sm">
                                                         <div className="flex justify-between">
+                                                            <span className="text-gray-600">Total Package Price:</span>
+                                                            <span className="font-bold text-gray-900">
+                                                                PKR {PACKAGES[formData.serviceType as keyof typeof PACKAGES][formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]].price.toLocaleString()}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex justify-between">
                                                             <span className="text-gray-600">Advance Payment (30%):</span>
-                                                            <span className="font-bold text-blue-600">PKR {PACKAGES[formData.serviceType as keyof typeof PACKAGES]?.[formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]]?.advance || 0}</span>
+                                                            <span className="font-bold text-blue-600">
+                                                                PKR {PACKAGES[formData.serviceType as keyof typeof PACKAGES][formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]].advance.toLocaleString()}
+                                                            </span>
                                                         </div>
                                                         <div className="border-t border-gray-200 pt-3 flex justify-between">
                                                             <span className="text-gray-600">Remaining Balance (70%):</span>
                                                             <span className="font-bold text-gray-900">
-                                                                PKR {Math.round((PACKAGES[formData.serviceType as keyof typeof PACKAGES]?.[formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]]?.advance || 0) * 7 / 3)}
+                                                                PKR {(PACKAGES[formData.serviceType as keyof typeof PACKAGES][formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]].price - PACKAGES[formData.serviceType as keyof typeof PACKAGES][formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]].advance).toLocaleString()}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -715,47 +853,42 @@ export default function OrderFormNew() {
                                     >
                                         <h3 className="text-3xl font-black text-gray-900 mb-8">Final Details</h3>
 
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                                                <FiCalendar className="w-4 h-4" />
-                                                Project Deadline
-                                            </label>
-                                            <input
-                                                type="date"
-                                                name="deadline"
-                                                value={formData.deadline}
-                                                onChange={handleChange}
-                                                className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium"
-                                            />
-                                        </div>
-
-                                        {/* Additional Files */}
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                                                <FiPackage className="w-4 h-4" />
-                                                Additional Files (Optional)
-                                            </label>
-                                            <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-500 transition-colors">
-                                                <input
-                                                    type="file"
-                                                    multiple
-                                                    onChange={(e) => handleFileChange(e, 'files')}
-                                                    className="hidden"
-                                                    id="additionalFiles"
-                                                />
-                                                <label htmlFor="additionalFiles" className="cursor-pointer">
-                                                    <FiPackage className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                                                    <p className="text-gray-600 font-medium">
-                                                        {formData.files ? `${formData.files.length} files selected` : 'Click to upload additional files'}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500 mt-2">Multiple files allowed</p>
-                                                </label>
+                                        {/* Add-ons Selection */}
+                                        <div className="space-y-4">
+                                            <h3 className="text-xl font-black text-gray-900">Optional Add-ons</h3>
+                                            <div className="grid md:grid-cols-2 gap-4">
+                                                {ADDONS.map((addon) => (
+                                                    <div
+                                                        key={addon.id}
+                                                        onClick={() => toggleAddon(addon.id)}
+                                                        className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.addons.includes(addon.id)
+                                                            ? 'border-blue-500 bg-blue-50'
+                                                            : 'border-gray-200 hover:border-blue-300'
+                                                            }`}
+                                                    >
+                                                        <div className="flex items-start gap-3">
+                                                            <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${formData.addons.includes(addon.id)
+                                                                ? 'bg-blue-500 border-blue-500'
+                                                                : 'border-gray-300'
+                                                                }`}>
+                                                                {formData.addons.includes(addon.id) && <FiCheckCircle className="w-4 h-4 text-white" />}
+                                                            </div>
+                                                            <div>
+                                                                <div className="flex justify-between items-center mb-1">
+                                                                    <span className="font-bold text-gray-900">{addon.name}</span>
+                                                                    <span className="text-sm font-bold text-blue-600">+PKR {addon.price.toLocaleString()}</span>
+                                                                </div>
+                                                                <p className="text-xs text-gray-500">{addon.desc}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
 
                                         {/* Order Summary */}
                                         <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-8 border border-gray-200">
-                                            <h4 className="text-lg font-black text-gray-900 mb-6">Order Summary</h4>
+                                            <h4 className="text-lg font-black text-gray-900 mb-6">Order Review</h4>
                                             <div className="space-y-4 text-sm">
                                                 <div className="flex justify-between">
                                                     <span className="text-gray-600">Service:</span>
@@ -765,39 +898,73 @@ export default function OrderFormNew() {
                                                     <span className="text-gray-600">Package:</span>
                                                     <span className="font-bold text-gray-900">{formData.budget}</span>
                                                 </div>
-                                                <div className="flex justify-between">
-                                                    <span className="text-gray-600">Advance Payment:</span>
-                                                    <span className="font-bold text-blue-600">PKR {PACKAGES[formData.serviceType as keyof typeof PACKAGES]?.[formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]]?.advance || 0}</span>
+
+                                                {formData.addons.length > 0 && (
+                                                    <div className="py-2 border-y border-gray-200 space-y-2">
+                                                        <p className="text-xs font-bold text-gray-500 uppercase">Selected Add-ons:</p>
+                                                        {formData.addons.map(addonId => {
+                                                            const addon = ADDONS.find(a => a.id === addonId);
+                                                            return (
+                                                                <div key={addonId} className="flex justify-between text-gray-600">
+                                                                    <span>{addon?.name}</span>
+                                                                    <span>+PKR {addon?.price.toLocaleString()}</span>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
+
+                                                <div className="flex justify-between text-lg">
+                                                    <span className="font-bold text-gray-900">Total Project Value:</span>
+                                                    <span className="font-black text-blue-600">PKR {calculateTotal().toLocaleString()}</span>
                                                 </div>
+
+                                                <div className="flex justify-between">
+                                                    <span className="text-gray-600">Advance Paid:</span>
+                                                    <span className="font-bold text-green-600">- PKR {parseInt(formData.paymentAmount || '0').toLocaleString()}</span>
+                                                </div>
+
                                                 <div className="border-t border-gray-300 pt-4 flex justify-between">
-                                                    <span className="text-gray-600">Amount Paid:</span>
-                                                    <span className="font-bold text-green-600">PKR {formData.paymentAmount}</span>
+                                                    <span className="text-gray-600 font-bold">Remaining Balance:</span>
+                                                    <span className="font-bold text-gray-900">PKR {(calculateTotal() - parseInt(formData.paymentAmount || '0')).toLocaleString()}</span>
                                                 </div>
                                             </div>
                                         </div>
+
+                                        {/* Error Message Display for Step 4 */}
+                                        {paymentError && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl"
+                                            >
+                                                <FiAlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                                                <p className="text-red-700 font-medium">{paymentError}</p>
+                                            </motion.div>
+                                        )}
                                     </motion.div>
                                 )}
-                            </AnimatePresence>
 
-                            {/* Navigation Buttons */}
-                            <div className="flex justify-between items-center mt-12">
-                                {step > 1 && (
-                                    <button
-                                        type="button"
-                                        onClick={prevStep}
-                                        className="px-8 py-4 text-gray-600 font-black hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all flex items-center gap-2"
-                                    >
-                                        <FiArrowLeft className="w-5 h-5" />
-                                        Back
-                                    </button>
-                                )}
+                                {/* Navigation Buttons */}
+                                <div className="flex justify-between pt-8 border-t border-gray-100">
+                                    {step > 1 ? (
+                                        <button
+                                            type="button"
+                                            onClick={prevStep}
+                                            className="px-8 py-4 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all flex items-center gap-2"
+                                        >
+                                            <FiArrowLeft className="w-5 h-5" />
+                                            Previous
+                                        </button>
+                                    ) : (
+                                        <div></div>
+                                    )}
 
-                                <div className="ml-auto">
                                     {step < 4 ? (
                                         <button
                                             type="button"
                                             onClick={nextStep}
-                                            className="px-10 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-black text-lg hover:from-blue-700 hover:to-purple-700 transition-all hover:scale-105 shadow-xl flex items-center gap-2"
+                                            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-purple-700 transition-all hover:scale-105 shadow-xl flex items-center gap-2"
                                         >
                                             Next Step
                                             <FiArrowRight className="w-5 h-5" />
@@ -806,14 +973,23 @@ export default function OrderFormNew() {
                                         <button
                                             type="submit"
                                             disabled={isSubmitting}
-                                            className="px-12 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-black text-lg hover:from-green-700 hover:to-emerald-700 transition-all hover:scale-105 shadow-xl flex items-center gap-2 disabled:opacity-70"
+                                            className="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold hover:from-green-700 hover:to-emerald-700 transition-all hover:scale-105 shadow-xl flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                                         >
-                                            {isSubmitting ? 'Processing...' : 'Confirm Order'}
-                                            {!isSubmitting && <FiSend className="w-5 h-5" />}
+                                            {isSubmitting ? (
+                                                <>
+                                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                    Processing...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    Confirm Order
+                                                    <FiSend className="w-5 h-5" />
+                                                </>
+                                            )}
                                         </button>
                                     )}
                                 </div>
-                            </div>
+                            </AnimatePresence>
                         </form>
                     )}
                 </motion.div>

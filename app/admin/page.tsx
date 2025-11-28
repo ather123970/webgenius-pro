@@ -28,9 +28,56 @@ export default function AdminDashboard() {
         loadAllOrders();
     }, []);
 
-    const loadAllOrders = () => {
-        const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-        setOrders(storedOrders);
+    const loadAllOrders = async () => {
+        setLoading(true);
+        let ordersLoaded = false;
+
+        // Try database first
+        try {
+            const response = await fetch('/api/orders');
+            const data = await response.json();
+            if (data.success && data.data?.length > 0) {
+                setOrders(data.data);
+                ordersLoaded = true;
+                console.log('✅ Loaded', data.data.length, 'orders from database');
+            }
+        } catch (error) {
+            console.warn('⚠️ Database fetch failed, trying localStorage...', error);
+        }
+
+        // Fallback to localStorage if database failed or is empty
+        if (!ordersLoaded) {
+            try {
+                const localOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+                if (localOrders.length > 0) {
+                    setOrders(localOrders);
+                    console.log('✅ Loaded', localOrders.length, 'orders from localStorage backup');
+                    setNotification({
+                        show: true,
+                        message: `Showing ${localOrders.length} orders from local backup (Database unavailable)`,
+                        type: 'warning'
+                    });
+                } else {
+                    setOrders([]);
+                    setNotification({
+                        show: true,
+                        message: 'No orders found in database or local storage',
+                        type: 'info'
+                    });
+                }
+            } catch (localError) {
+                console.error('❌ Failed to load from localStorage:', localError);
+                setOrders([]);
+                setNotification({
+                    show: true,
+                    message: 'Unable to load orders from any source',
+                    type: 'error'
+                });
+            }
+        }
+
+        setLoading(false);
+        setTimeout(() => setNotification({ show: false, message: '', type: '' }), 5000);
     };
 
     const searchOrder = () => {
@@ -40,7 +87,7 @@ export default function AdminDashboard() {
         }
 
         setLoading(true);
-        const found = orders.find(order => 
+        const found = orders.find(order =>
             order.orderId.toLowerCase().includes(searchId.toLowerCase())
         );
 
@@ -63,25 +110,35 @@ export default function AdminDashboard() {
         setLoading(true);
 
         try {
-            // Update order in localStorage
-            const updatedOrders = orders.map(order => 
-                order.orderId === selectedOrder.orderId 
-                    ? { ...order, status: newStatus, lastUpdated: new Date().toISOString(), adminNote: customNote, progressUpdated: true }
-                    : order
-            );
+            const response = await fetch(`/api/orders/${selectedOrder.orderId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    status: newStatus,
+                    adminNote: customNote
+                }),
+            });
 
-            localStorage.setItem('orders', JSON.stringify(updatedOrders));
-            setOrders(updatedOrders);
-            
-            // Update selected order with progress tracking
-            const updatedOrder = { 
-                ...selectedOrder, 
-                status: newStatus, 
-                lastUpdated: new Date().toISOString(), 
-                adminNote: customNote,
-                progressUpdated: true
-            };
-            setSelectedOrder(updatedOrder);
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to update order');
+            }
+
+            if (newStatus === 'completed') {
+                // Order was deleted from DB
+                setOrders(prev => prev.filter(o => o.orderId !== selectedOrder.orderId));
+                setSelectedOrder(null);
+                setNotification({ show: true, message: 'Order completed and removed from database!', type: 'success' });
+            } else {
+                // Order was updated
+                const updatedOrder = data.data;
+                setOrders(prev => prev.map(o => o.orderId === updatedOrder.orderId ? updatedOrder : o));
+                setSelectedOrder(updatedOrder);
+                setNotification({ show: true, message: 'Order updated successfully!', type: 'success' });
+            }
 
             // Send notification email to customer
             await emailjs.send(
@@ -106,12 +163,11 @@ export default function AdminDashboard() {
                 'NP2Sat5tqcJqQqoQ2'
             );
 
-            setNotification({ show: true, message: 'Order updated and customer notified!', type: 'success' });
             setIsEditing(false);
 
         } catch (error: any) {
             console.error('Failed to update order:', error);
-            setNotification({ show: true, message: 'Failed to update order', type: 'error' });
+            setNotification({ show: true, message: error.message || 'Failed to update order', type: 'error' });
         }
 
         setLoading(false);
@@ -147,7 +203,7 @@ export default function AdminDashboard() {
                             </div>
                             <h1 className="text-2xl font-black text-gray-900">Admin Dashboard</h1>
                         </div>
-                        <Link 
+                        <Link
                             href="/"
                             className="px-4 py-2 text-gray-600 hover:text-gray-900 font-medium transition-colors"
                         >
@@ -163,11 +219,10 @@ export default function AdminDashboard() {
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`mb-6 p-4 rounded-xl border ${
-                            notification.type === 'success' 
-                                ? 'bg-green-50 border-green-200 text-green-800' 
-                                : 'bg-red-50 border-red-200 text-red-800'
-                        }`}
+                        className={`mb-6 p-4 rounded-xl border ${notification.type === 'success'
+                            ? 'bg-green-50 border-green-200 text-green-800'
+                            : 'bg-red-50 border-red-200 text-red-800'
+                            }`}
                     >
                         <div className="flex items-center gap-2">
                             {notification.type === 'success' ? (
@@ -356,11 +411,10 @@ export default function AdminDashboard() {
                                             key={stage.id}
                                             onClick={() => updateOrderStatus(stage.id)}
                                             disabled={loading}
-                                            className={`p-4 rounded-xl border-2 transition-all hover:scale-105 disabled:opacity-50 ${
-                                                selectedOrder.status === stage.id
-                                                    ? 'border-blue-600 bg-blue-600 text-white'
-                                                    : 'border-gray-200 bg-white hover:border-blue-300'
-                                            }`}
+                                            className={`p-4 rounded-xl border-2 transition-all hover:scale-105 disabled:opacity-50 ${selectedOrder.status === stage.id
+                                                ? 'border-blue-600 bg-blue-600 text-white'
+                                                : 'border-gray-200 bg-white hover:border-blue-300'
+                                                }`}
                                         >
                                             <div className="flex items-center gap-3">
                                                 <stage.icon className="w-6 h-6" />

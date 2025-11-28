@@ -1,0 +1,20 @@
+[
+  {
+    "orderId": "ORD-MIJBOC0V-2Q2BWS",
+    "name": "Test User",
+    "email": "test@example.com",
+    "phone": "03001234567",
+    "company": "Test Company",
+    "serviceType": "shopify",
+    "budget": "Branded Pro",
+    "description": "Test order added manually",
+    "deadline": "",
+    "paymentAmount": 21000,
+    "paymentProof": "manual-entry",
+    "addons": [],
+    "totalPrice": 70000,
+    "status": "confirmed",
+    "createdAt": "2025-11-28T21:04:39.213Z",
+    "updatedAt": "2025-11-28T21:04:39.213Z"
+  }
+]

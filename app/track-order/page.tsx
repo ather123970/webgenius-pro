@@ -21,22 +21,43 @@ function TrackOrderContent() {
         }
     }, [searchParams]);
 
-    const searchOrder = (id: string) => {
+    const searchOrder = async (id: string) => {
         setLoading(true);
         setError('');
 
-        // Simulate API call - in real app, this would be a backend call
-        setTimeout(() => {
+        try {
+            // Try database first
+            const response = await fetch(`/api/orders/${id}`);
+            const data = await response.json();
+
+            if (data.success) {
+                setOrder(data.data);
+                setLoading(false);
+                return;
+            }
+        } catch (err) {
+            console.warn('Database fetch failed, checking localStorage...', err);
+        }
+
+        // Fallback to localStorage if database failed
+        try {
             const orders = JSON.parse(localStorage.getItem('orders') || '[]');
             const foundOrder = orders.find((o: any) => o.orderId === id);
 
             if (foundOrder) {
+                console.log('✅ Order found in localStorage backup');
                 setOrder(foundOrder);
             } else {
-                setError('Order not found. Please check your Order ID.');
+                setError('Order not found. Please check your Order ID and try again.');
+                setOrder(null);
             }
+        } catch (localErr) {
+            console.error('Error checking localStorage:', localErr);
+            setError('Order not found. Please check your Order ID.');
+            setOrder(null);
+        } finally {
             setLoading(false);
-        }, 500);
+        }
     };
 
     const handleSearch = (e: React.FormEvent) => {
@@ -200,8 +221,8 @@ function TrackOrderContent() {
                                                 animate={{ scale: 1 }}
                                                 transition={{ delay: index * 0.1 }}
                                                 className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-white ${status.completed
-                                                        ? 'bg-gradient-to-r from-green-500 to-emerald-600'
-                                                        : 'bg-gradient-to-r from-gray-300 to-gray-400'
+                                                    ? 'bg-gradient-to-r from-green-500 to-emerald-600'
+                                                    : 'bg-gradient-to-r from-gray-300 to-gray-400'
                                                     }`}
                                             >
                                                 {status.completed ? (
