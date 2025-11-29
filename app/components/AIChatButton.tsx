@@ -44,7 +44,7 @@ export default function AIChatButton() {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.8, y: 20 }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        className="fixed bottom-44 right-8 z-50 bg-white rounded-2xl shadow-2xl w-[380px] h-[500px] overflow-hidden"
+                        className="fixed bottom-44 right-4 md:right-8 z-50 bg-white rounded-2xl shadow-2xl w-[90vw] max-w-[380px] h-[450px] md:h-[500px] overflow-hidden"
                     >
                         {/* Close Button */}
                         <button

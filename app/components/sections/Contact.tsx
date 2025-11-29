@@ -46,7 +46,7 @@ export default function Contact() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: 0.1 }}
-                            href="https://wa.me/923434153736"
+                            href="https://wa.me/923434153736?text=Hi%20AtherTechy%2C%20I%27m%20interested%20in%20your%20web%20services"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="group p-8 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 hover:border-green-500 transition-all card-hover"

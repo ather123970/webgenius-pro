@@ -184,6 +184,7 @@ export default function Portfolio() {
                                                 src={item.image}
                                                 alt={item.title}
                                                 fill
+                                                sizes="(max-width: 768px) 85vw, 600px"
                                                 className="object-cover group-hover:scale-105 transition-transform duration-500"
                                                 priority={index === 0}
                                             />
@@ -255,6 +256,7 @@ export default function Portfolio() {
                                 alt={selectedCase.title}
                                 fill
                                 className="object-cover"
+                                sizes="(max-width: 768px) 100vw, 800px"
                             />
                         </div>
 

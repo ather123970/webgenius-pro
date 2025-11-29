@@ -221,6 +221,7 @@ export default function Hero() {
                                             src="/team/ather.jpg"
                                             alt="Ather - Founder"
                                             fill
+                                            sizes="(max-width: 768px) 100vw, 300px"
                                             className="object-cover relative z-10"
                                             priority
                                         />

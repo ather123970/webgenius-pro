@@ -38,6 +38,7 @@ export default function Header() {
                                     src="/team/ather.jpg"
                                     alt="Ather"
                                     fill
+                                    sizes="44px"
                                     className="object-cover"
                                     priority
                                 />

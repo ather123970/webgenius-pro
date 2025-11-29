@@ -98,6 +98,7 @@ export default function Team() {
                                         src="/team/ather.jpg"
                                         alt="Ather"
                                         fill
+                                        sizes="(max-width: 768px) 100vw, 200px"
                                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                                         priority
                                     />

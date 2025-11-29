@@ -290,7 +290,7 @@ export default function Deals() {
                         Need a custom solution? <span className="font-black text-gray-900">We build anything.</span>
                     </p>
                     <a
-                        href="https://wa.me/923434153736"
+                        href="https://wa.me/923434153736?text=Hi%20AtherTechy%2C%20I%27m%20interested%20in%20your%20web%20services"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-8 py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all hover:scale-105 shadow-xl"

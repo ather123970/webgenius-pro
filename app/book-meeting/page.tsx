@@ -37,63 +37,83 @@ function BookMeetingContent() {
         e.preventDefault();
         setIsSubmitting(true);
 
-        try {
-            // Send booking confirmation to customer
-            const customerResult = await emailjs.send(
-                'service_bopwq39', // Your Service ID
-                'template_wkgimvt', // Your Booking Template ID
-                {
-                    from_name: formData.name,
-                    from_email: formData.email,
-                    phone: formData.phone,
-                    company: formData.company || 'Not provided',
-                    service: formData.service || 'Not specified',
-                    budget: formData.package || 'Not specified',
-                    description: formData.message || 'No additional message',
-                    deadline: `${formData.preferredDate || 'Flexible'} at ${formData.preferredTime || 'Flexible time'}`,
-                    order_date: new Date().toLocaleString(),
-                    meeting_type: 'Consultation Meeting Request'
-                },
-                'NP2Sat5tqcJqQqoQ2' // Your Public Key
-            );
+        // Show success IMMEDIATELY
+        setIsSubmitting(false);
+        setIsSuccess(true);
 
-            console.log('Customer booking confirmation sent:', customerResult.text);
+        // Redirect after 2 seconds
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 2000);
 
-            // Send booking notification to business email
-            const businessResult = await emailjs.send(
-                'service_bopwq39', // Your Service ID
-                'template_wkgimvt', // Same Booking Template ID
-                {
-                    from_name: formData.name,
-                    from_email: formData.email,
-                    phone: formData.phone,
-                    company: formData.company || 'Not provided',
-                    service: formData.service || 'Not specified',
-                    budget: formData.package || 'Not specified',
-                    description: formData.message || 'No additional message',
-                    deadline: `${formData.preferredDate || 'Flexible'} at ${formData.preferredTime || 'Flexible time'}`,
-                    order_date: new Date().toLocaleString(),
-                    meeting_type: 'Consultation Meeting Request',
-                    to_email: 'businessman2124377@gmail.com', // Business email for admin notification
-                    notification_type: 'ADMIN_NOTIFICATION'
-                },
-                'NP2Sat5tqcJqQqoQ2' // Your Public Key
-            );
+        // Generate unique meeting ID
+        const meetingId = `MTG-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
-            console.log('Business booking notification sent:', businessResult.text);
-            setIsSubmitting(false);
-            setIsSuccess(true);
+        // Send emails in background (non-blocking)
+        console.log('📧 Preparing to send booking emails...');
+        console.log('Customer email:', formData.email);
 
-            // Optionally redirect to home after 3 seconds
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 3000);
+        // 1. Send to Customer
+        emailjs.send(
+            'service_bopwq39',
+            'template_wkgimvt', // Your Booking Template ID
+            {
+                meeting_id: meetingId,
+                to_name: formData.name,
+                to_email: formData.email, // CRITICAL: Customer's email
+                customer_email: formData.email,
+                from_name: "Ather Web Agency",
+                reply_to: "businessman2124377@gmail.com", // Where customer can reply
+                phone: formData.phone,
+                company: formData.company || 'Not provided',
+                service: formData.service || 'Not specified',
+                package: formData.package || 'Not specified',
+                message: formData.message || 'No additional message',
+                preferred_date: formData.preferredDate || 'Flexible',
+                preferred_time: formData.preferredTime || 'Flexible time',
+                booking_date: new Date().toLocaleString(),
+                meeting_type: 'Free 30-Minute Consultation',
+                message_type: 'CUSTOMER_CONFIRMATION'
+            },
+            'NP2Sat5tqcJqQqoQ2'
+        ).then((response) => {
+            console.log('✅ Customer booking email sent successfully to:', formData.email);
+            console.log('EmailJS response:', response);
+        }).catch(err => {
+            console.error('❌ Customer booking email FAILED:', err);
+            console.error('Error details:', err.text || err.message);
+        });
 
-        } catch (error) {
-            console.error('Failed to send meeting request:', error);
-            setIsSubmitting(false);
-            alert('Failed to send meeting request. Please try again or contact us directly via WhatsApp.');
-        }
+        // 2. Send to Admin (Business Owner)
+        emailjs.send(
+            'service_bopwq39',
+            'template_wkgimvt', // Same Booking Template ID
+            {
+                meeting_id: meetingId,
+                to_name: "Admin",
+                to_email: 'businessman2124377@gmail.com', // CRITICAL: Admin's email
+                customer_email: formData.email,
+                from_name: formData.name,
+                reply_to: formData.email, // Admin can reply to customer
+                phone: formData.phone,
+                company: formData.company || 'Not provided',
+                service: formData.service || 'Not specified',
+                package: formData.package || 'Not specified',
+                message: formData.message || 'No additional message',
+                preferred_date: formData.preferredDate || 'Flexible',
+                preferred_time: formData.preferredTime || 'Flexible time',
+                booking_date: new Date().toLocaleString(),
+                meeting_type: 'New Consultation Request',
+                message_type: 'ADMIN_NOTIFICATION'
+            },
+            'NP2Sat5tqcJqQqoQ2'
+        ).then((response) => {
+            console.log('✅ Admin booking email sent successfully');
+            console.log('EmailJS response:', response);
+        }).catch(err => {
+            console.error('❌ Admin booking email FAILED:', err);
+            console.error('Error details:', err.text || err.message);
+        });
     };
 
     const services = [

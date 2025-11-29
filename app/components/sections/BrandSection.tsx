@@ -58,6 +58,7 @@ export default function BrandSection() {
                                     alt="Ather Web Agency Team"
                                     width={600}
                                     height={700}
+                                    sizes="(max-width: 768px) 100vw, 600px"
                                     className="w-full h-auto"
                                     priority
                                 />
@@ -148,7 +149,7 @@ export default function BrandSection() {
 
                         {/* WhatsApp CTA */}
                         <motion.a
-                            href="https://wa.me/923434153736"
+                            href="https://wa.me/923434153736?text=Hi%20AtherTechy%2C%20I%27m%20interested%20in%20your%20web%20services"
                             target="_blank"
                             rel="noopener noreferrer"
                             whileHover={{ scale: 1.05 }}

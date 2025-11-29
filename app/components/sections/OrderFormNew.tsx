@@ -224,7 +224,7 @@ export default function OrderFormNew() {
         setOrderId(newOrderId);
 
         try {
-            // Convert payment proof to base64
+            // Convert payment proof to Base64 first
             let paymentProofBase64 = '';
             if (formData.paymentProof) {
                 try {
@@ -234,74 +234,23 @@ export default function OrderFormNew() {
                 }
             }
 
-            // 1. Save to Database (CRITICAL - must succeed)
+            console.log('📧 Starting order submission process...');
+            console.log('Customer email:', formData.email);
+
             try {
-                const dbResponse = await fetch('/api/orders', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        orderId: newOrderId,
-                        name: formData.name,
-                        email: formData.email,
-                        phone: formData.phone,
-                        company: formData.company,
-                        serviceType: formData.serviceType,
-                        budget: formData.budget,
-                        description: formData.description,
-                        deadline: formData.deadline,
-                        paymentAmount: parseInt(formData.paymentAmount),
-                        paymentProof: paymentProofBase64,
-                        addons: formData.addons,
-                        totalPrice: calculateTotal(),
-                        status: 'confirmed'
-                    }),
-                });
+                // 1. Send emails FIRST (wait for them to complete)
+                console.log('📧 Sending customer email to:', formData.email);
 
-                if (!dbResponse.ok) {
-                    const errorData = await dbResponse.json();
-                    console.warn('Database save failed:', errorData.error);
-                    // Continue anyway - we'll save to localStorage as backup
-                }
-            } catch (dbError) {
-                console.error('Database error:', dbError);
-                // Continue anyway - we'll save to localStorage as backup
-            }
-
-            // 2. Send emails (Run in background to speed up UI)
-            Promise.all([
-                emailjs.send(
+                const customerEmailResult = await emailjs.send(
                     'service_bopwq39',
                     'template_1ubs0z8',
                     {
                         order_id: newOrderId,
-                        from_name: formData.name,
-                        from_email: formData.email,
-                        phone: formData.phone || 'Not provided',
-                        company: formData.company || 'Not provided',
-                        service: formData.serviceType,
-                        budget: formData.budget,
-                        advance_payment: PACKAGES[formData.serviceType as keyof typeof PACKAGES]?.[formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]]?.advance || 0,
-                        payment_received: formData.paymentAmount,
-                        addons: formData.addons.map(id => ADDONS.find(a => a.id === id)?.name).join(', ') || 'None',
-                        total_price: calculateTotal(),
-                        description: formData.description,
-                        deadline: formData.deadline || 'Not specified',
-                        order_date: new Date().toLocaleString(),
-                        order_status: 'Confirmed - Payment Received',
-                        tracking_link: `https://athertechy.com/track-order?id=${newOrderId}`
-                    },
-                    'NP2Sat5tqcJqQqoQ2'
-                ).catch(err => console.warn('Customer email failed:', err)),
-
-                emailjs.send(
-                    'service_bopwq39',
-                    'template_1ubs0z8',
-                    {
-                        order_id: newOrderId,
-                        from_name: formData.name,
-                        from_email: formData.email,
+                        to_name: formData.name,
+                        to_email: formData.email, // CRITICAL: Customer's email
+                        customer_email: formData.email,
+                        from_name: "Ather Web Agency",
+                        reply_to: "businessman2124377@gmail.com", // Where customer can reply
                         phone: formData.phone || 'Not provided',
                         company: formData.company || 'Not provided',
                         service: formData.serviceType,
@@ -315,40 +264,120 @@ export default function OrderFormNew() {
                         order_date: new Date().toLocaleString(),
                         order_status: 'Confirmed - Payment Received',
                         tracking_link: `https://athertechy.com/track-order?id=${newOrderId}`,
-                        to_email: 'businessman2124377@gmail.com',
-                        notification_type: 'ADMIN_NOTIFICATION'
+                        message_type: 'CUSTOMER_CONFIRMATION'
                     },
                     'NP2Sat5tqcJqQqoQ2'
-                ).catch(err => console.warn('Business email failed:', err))
-            ]);
+                );
 
-            // Store order in localStorage (BACKUP - always succeeds)
-            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-            orders.push({
-                orderId: newOrderId,
-                ...formData,
-                totalPrice: calculateTotal(),
-                status: 'Confirmed',
-                createdAt: new Date().toISOString()
-            });
-            localStorage.setItem('orders', JSON.stringify(orders));
-            console.log('✅ Order saved to localStorage backup');
+                console.log('✅ Customer email sent successfully!');
+                console.log('EmailJS response:', customerEmailResult);
 
-            // Success! Show confirmation
-            setIsSubmitting(false);
-            setIsSuccess(true);
+                // Send to Admin
+                console.log('📧 Sending admin email...');
 
-            // Auto-copy Order ID and Redirect
-            try {
-                await navigator.clipboard.writeText(newOrderId);
-            } catch (err) {
-                // Ignore clipboard errors
+                const adminEmailResult = await emailjs.send(
+                    'service_bopwq39',
+                    'template_1ubs0z8',
+                    {
+                        order_id: newOrderId,
+                        to_name: "Admin",
+                        to_email: 'businessman2124377@gmail.com', // CRITICAL: Admin's email
+                        customer_email: formData.email,
+                        from_name: formData.name,
+                        reply_to: formData.email, // Admin can reply to customer
+                        phone: formData.phone || 'Not provided',
+                        company: formData.company || 'Not provided',
+                        service: formData.serviceType,
+                        budget: formData.budget,
+                        advance_payment: PACKAGES[formData.serviceType as keyof typeof PACKAGES]?.[formData.budget as keyof typeof PACKAGES[keyof typeof PACKAGES]]?.advance || 0,
+                        payment_received: formData.paymentAmount,
+                        addons: formData.addons.map(id => ADDONS.find(a => a.id === id)?.name).join(', ') || 'None',
+                        total_price: calculateTotal(),
+                        description: formData.description,
+                        deadline: formData.deadline || 'Not specified',
+                        order_date: new Date().toLocaleString(),
+                        order_status: 'Confirmed - Payment Received',
+                        tracking_link: `https://athertechy.com/track-order?id=${newOrderId}`,
+                        message_type: 'ADMIN_NOTIFICATION'
+                    },
+                    'NP2Sat5tqcJqQqoQ2'
+                );
+
+                console.log('✅ Admin email sent successfully!');
+                console.log('EmailJS response:', adminEmailResult);
+
+                // 2. Save to Database
+                try {
+                    const dbResponse = await fetch('/api/orders', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            orderId: newOrderId,
+                            name: formData.name,
+                            email: formData.email,
+                            phone: formData.phone,
+                            company: formData.company,
+                            serviceType: formData.serviceType,
+                            budget: formData.budget,
+                            description: formData.description,
+                            deadline: formData.deadline,
+                            paymentAmount: parseInt(formData.paymentAmount),
+                            paymentProof: paymentProofBase64,
+                            addons: formData.addons,
+                            totalPrice: calculateTotal(),
+                            status: 'confirmed'
+                        }),
+                    });
+
+                    if (!dbResponse.ok) {
+                        const errorData = await dbResponse.json();
+                        console.warn('⚠️ Database save failed:', errorData.error);
+                    } else {
+                        console.log('✅ Order saved to database');
+                    }
+                } catch (dbError) {
+                    console.error('⚠️ Database error:', dbError);
+                }
+
+                // 3. Store in localStorage as backup
+                const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                orders.push({
+                    orderId: newOrderId,
+                    ...formData,
+                    totalPrice: calculateTotal(),
+                    status: 'Confirmed',
+                    createdAt: new Date().toISOString()
+                });
+                localStorage.setItem('orders', JSON.stringify(orders));
+                console.log('✅ Order saved to localStorage');
+
+                // Success! Show confirmation
+                setIsSubmitting(false);
+                setIsSuccess(true);
+
+                // Auto-copy Order ID
+                try {
+                    await navigator.clipboard.writeText(newOrderId);
+                } catch (err) {
+                    // Ignore clipboard errors
+                }
+
+                // Redirect to tracking page after 3 seconds
+                setTimeout(() => {
+                    router.push(`/track-order?id=${newOrderId}`);
+                }, 3000);
+
+            } catch (emailError: any) {
+                console.error('❌ EMAIL SENDING FAILED!');
+                console.error('Error details:', emailError);
+                console.error('Error text:', emailError.text || emailError.message);
+
+                setIsSubmitting(false);
+                alert(`Failed to send confirmation email!\n\nError: ${emailError.text || emailError.message}\n\nPlease contact us directly via WhatsApp: +92 343 4153736`);
+                return; // Stop here if emails fail
             }
-
-            // Redirect to tracking page after 1 second
-            setTimeout(() => {
-                router.push(`/track-order?id=${newOrderId}`);
-            }, 1000);
         } catch (error: any) {
             console.error('❌ Order submission failed:', error);
             setIsSubmitting(false);
