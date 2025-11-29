@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { FiSearch, FiEdit2, FiSave, FiX, FiCheckCircle, FiClock, FiTruck, FiAlertCircle, FiMail, FiPhone, FiCalendar, FiPackage, FiUser, FiTrendingUp } from 'react-icons/fi';
+import { FiSearch, FiEdit2, FiX, FiCheckCircle, FiClock, FiTruck, FiAlertCircle, FiPackage, FiRefreshCw, FiBell } from 'react-icons/fi';
 import Link from 'next/link';
 import emailjs from '@emailjs/browser';
 
@@ -20,82 +20,82 @@ export default function AdminDashboard() {
     const [selectedOrder, setSelectedOrder] = useState<any>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
     const [notification, setNotification] = useState({ show: false, message: '', type: '' });
+    const [lastUpdate, setLastUpdate] = useState(new Date());
+    const [showAnnounce, setShowAnnounce] = useState(false);
+    const [announcement, setAnnouncement] = useState({ title: '', message: '' });
 
-    // Initialize EmailJS
+    // Initialize EmailJS and load orders
     useEffect(() => {
         emailjs.init('NP2Sat5tqcJqQqoQ2');
         loadAllOrders();
     }, []);
 
-    const loadAllOrders = async () => {
-        setLoading(true);
-        let ordersLoaded = false;
+    // Auto-refresh every 10 seconds for real-time updates
+    useEffect(() => {
+        const interval = setInterval(() => {
+            loadAllOrders(true); // Silent refresh
+        }, 10000); // 10 seconds
 
-        // Try database first
+        return () => clearInterval(interval);
+    }, []);
+
+    const loadAllOrders = useCallback(async (silent = false) => {
+        if (!silent) setLoading(true);
+        setRefreshing(true);
+
         try {
-            const response = await fetch('/api/orders');
+            const response = await fetch('/api/orders?limit=100');
             const data = await response.json();
-            if (data.success && data.data?.length > 0) {
+
+            if (data.success && data.data) {
                 setOrders(data.data);
-                ordersLoaded = true;
-                console.log('✅ Loaded', data.data.length, 'orders from database');
+                setLastUpdate(new Date());
+
+                if (!silent) {
+                    console.log('✅ Loaded', data.data.length, 'orders');
+                }
             }
         } catch (error) {
-            console.warn('⚠️ Database fetch failed, trying localStorage...', error);
-        }
-
-        // Fallback to localStorage if database failed or is empty
-        if (!ordersLoaded) {
-            try {
-                const localOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-                if (localOrders.length > 0) {
-                    setOrders(localOrders);
-                    console.log('✅ Loaded', localOrders.length, 'orders from localStorage backup');
-                    setNotification({
-                        show: true,
-                        message: `Showing ${localOrders.length} orders from local backup (Database unavailable)`,
-                        type: 'warning'
-                    });
-                } else {
-                    setOrders([]);
-                    setNotification({
-                        show: true,
-                        message: 'No orders found in database or local storage',
-                        type: 'info'
-                    });
-                }
-            } catch (localError) {
-                console.error('❌ Failed to load from localStorage:', localError);
-                setOrders([]);
+            console.error('⚠️ Failed to load orders:', error);
+            if (!silent) {
                 setNotification({
                     show: true,
-                    message: 'Unable to load orders from any source',
+                    message: 'Failed to load orders. Please refresh.',
                     type: 'error'
                 });
             }
         }
 
         setLoading(false);
-        setTimeout(() => setNotification({ show: false, message: '', type: '' }), 5000);
-    };
+        setRefreshing(false);
+    }, []);
 
-    const searchOrder = () => {
+    const searchOrder = async () => {
         if (!searchId.trim()) {
             setNotification({ show: true, message: 'Please enter an Order ID', type: 'error' });
+            setTimeout(() => setNotification({ show: false, message: '', type: '' }), 3000);
             return;
         }
 
         setLoading(true);
-        const found = orders.find(order =>
-            order.orderId.toLowerCase().includes(searchId.toLowerCase())
-        );
 
-        if (found) {
-            setSelectedOrder(found);
-            setIsEditing(false);
-            setNotification({ show: true, message: 'Order found successfully!', type: 'success' });
-        } else {
+        try {
+            // Use API for direct search (fastest)
+            const response = await fetch(`/api/orders/${searchId}`);
+            const data = await response.json();
+
+            if (data.success && data.data) {
+                setSelectedOrder(data.data);
+                setIsEditing(false);
+                setNotification({ show: true, message: 'Order found!', type: 'success' });
+            } else {
+                setSelectedOrder(null);
+                setNotification({ show: true, message: 'Order not found', type: 'error' });
+            }
+        } catch (error) {
+            console.error('Search error:', error);
             setSelectedOrder(null);
             setNotification({ show: true, message: 'Order not found', type: 'error' });
         }
@@ -127,23 +127,24 @@ export default function AdminDashboard() {
                 throw new Error(data.error || 'Failed to update order');
             }
 
+            // Update local state immediately for real-time feel
+            const updatedOrder = data.data;
             if (newStatus === 'completed') {
-                // Order was deleted from DB
                 setOrders(prev => prev.filter(o => o.orderId !== selectedOrder.orderId));
                 setSelectedOrder(null);
-                setNotification({ show: true, message: 'Order completed and removed from database!', type: 'success' });
+                setNotification({ show: true, message: 'Order completed!', type: 'success' });
             } else {
-                // Order was updated
-                const updatedOrder = data.data;
-                setOrders(prev => prev.map(o => o.orderId === updatedOrder.orderId ? updatedOrder : o));
+                setOrders(prev => prev.map(o =>
+                    o.orderId === updatedOrder.orderId ? updatedOrder : o
+                ));
                 setSelectedOrder(updatedOrder);
                 setNotification({ show: true, message: 'Order updated successfully!', type: 'success' });
             }
 
-            // Send notification email to customer
-            await emailjs.send(
+            // Send notification email (non-blocking)
+            emailjs.send(
                 'service_bopwq39',
-                'template_wkgimvt', // Using booking template for notifications
+                'template_wkgimvt',
                 {
                     order_id: selectedOrder.orderId,
                     from_name: selectedOrder.name,
@@ -152,16 +153,16 @@ export default function AdminDashboard() {
                     company: selectedOrder.company || 'Not provided',
                     service: selectedOrder.serviceType,
                     budget: selectedOrder.budget,
-                    description: customNote || `Your order status has been updated to: ${newStatus}`,
+                    description: customNote || `Status updated to: ${newStatus}`,
                     deadline: selectedOrder.deadline || 'Not specified',
                     order_date: new Date(selectedOrder.createdAt).toLocaleString(),
                     update_date: new Date().toLocaleString(),
                     order_status: newStatus,
-                    tracking_link: `https://atherweb.agency/track-order?id=${selectedOrder.orderId}`,
+                    tracking_link: `https://athertechy.com/track-order?id=${selectedOrder.orderId}`,
                     notification_type: 'STATUS_UPDATE'
                 },
                 'NP2Sat5tqcJqQqoQ2'
-            );
+            ).catch(err => console.warn('Email failed:', err));
 
             setIsEditing(false);
 
@@ -194,21 +195,44 @@ export default function AdminDashboard() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             {/* Header */}
-            <div className="bg-white border-b border-gray-200">
+            <div className="bg-white border-b border-gray-200 sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-6 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
                                 <FiPackage className="w-6 h-6 text-white" />
                             </div>
-                            <h1 className="text-2xl font-black text-gray-900">Admin Dashboard</h1>
+                            <div>
+                                <h1 className="text-2xl font-black text-gray-900">Admin Dashboard</h1>
+                                <p className="text-xs text-gray-500">
+                                    Last updated: {lastUpdate.toLocaleTimeString()}
+                                    {refreshing && <span className="ml-2 text-blue-600">● Refreshing...</span>}
+                                </p>
+                            </div>
                         </div>
-                        <Link
-                            href="/"
-                            className="px-4 py-2 text-gray-600 hover:text-gray-900 font-medium transition-colors"
-                        >
-                            Back to Site
-                        </Link>
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setShowAnnounce(true)}
+                                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium transition-all hover:shadow-lg flex items-center gap-2"
+                            >
+                                <FiBell className="w-4 h-4" />
+                                Announce
+                            </button>
+                            <button
+                                onClick={() => loadAllOrders(false)}
+                                disabled={refreshing}
+                                className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+                            >
+                                <FiRefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                                Refresh
+                            </button>
+                            <Link
+                                href="/"
+                                className="px-4 py-2 text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                            >
+                                Back to Site
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -443,7 +467,7 @@ export default function AdminDashboard() {
                     >
                         <h2 className="text-2xl font-black text-gray-900 mb-6">Recent Orders</h2>
                         <div className="space-y-4">
-                            {orders.slice(0, 5).map((order) => (
+                            {orders.slice(0, 10).map((order) => (
                                 <div
                                     key={order.orderId}
                                     onClick={() => setSelectedOrder(order)}

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiSend, FiArrowRight, FiArrowLeft, FiUpload, FiAlertCircle, FiCheckCircle, FiUser, FiMail, FiPhone, FiBriefcase, FiFileText, FiCalendar, FiCreditCard, FiPackage } from 'react-icons/fi';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import emailjs from '@emailjs/browser';
 
 // Package pricing configuration
@@ -80,6 +80,8 @@ const getThousands = (amount: number) => Math.floor(amount / 1000);
 
 export default function OrderFormNew() {
     const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const router = useRouter();
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -165,6 +167,7 @@ export default function OrderFormNew() {
             fileInput.value = '';
         }
     };
+
 
     // Validate payment against selected package
     const validatePayment = (): boolean => {
@@ -266,10 +269,9 @@ export default function OrderFormNew() {
                 // Continue anyway - we'll save to localStorage as backup
             }
 
-            // 2. Send emails (OPTIONAL - don't block on email failures)
-            try {
-                // Send order confirmation email to customer
-                await emailjs.send(
+            // 2. Send emails (Run in background to speed up UI)
+            Promise.all([
+                emailjs.send(
                     'service_bopwq39',
                     'template_1ubs0z8',
                     {
@@ -288,19 +290,12 @@ export default function OrderFormNew() {
                         deadline: formData.deadline || 'Not specified',
                         order_date: new Date().toLocaleString(),
                         order_status: 'Confirmed - Payment Received',
-                        tracking_link: `https://atherweb.agency/track-order?id=${newOrderId}`
+                        tracking_link: `https://athertechy.com/track-order?id=${newOrderId}`
                     },
                     'NP2Sat5tqcJqQqoQ2'
-                );
-                console.log('✅ Customer email sent');
-            } catch (emailError: any) {
-                console.warn('⚠️ Customer email failed:', emailError.text || emailError.message);
-                // Don't block the order - email is nice to have but not required
-            }
+                ).catch(err => console.warn('Customer email failed:', err)),
 
-            try {
-                // Send notification to business
-                await emailjs.send(
+                emailjs.send(
                     'service_bopwq39',
                     'template_1ubs0z8',
                     {
@@ -319,17 +314,13 @@ export default function OrderFormNew() {
                         deadline: formData.deadline || 'Not specified',
                         order_date: new Date().toLocaleString(),
                         order_status: 'Confirmed - Payment Received',
-                        tracking_link: `https://atherweb.agency/track-order?id=${newOrderId}`,
+                        tracking_link: `https://athertechy.com/track-order?id=${newOrderId}`,
                         to_email: 'businessman2124377@gmail.com',
                         notification_type: 'ADMIN_NOTIFICATION'
                     },
                     'NP2Sat5tqcJqQqoQ2'
-                );
-                console.log('✅ Business email sent');
-            } catch (emailError: any) {
-                console.warn('⚠️ Business email failed:', emailError.text || emailError.message);
-                // Don't block the order
-            }
+                ).catch(err => console.warn('Business email failed:', err))
+            ]);
 
             // Store order in localStorage (BACKUP - always succeeds)
             const orders = JSON.parse(localStorage.getItem('orders') || '[]');
@@ -347,16 +338,17 @@ export default function OrderFormNew() {
             setIsSubmitting(false);
             setIsSuccess(true);
 
-            // Reset form after 5 seconds
+            // Auto-copy Order ID and Redirect
+            try {
+                await navigator.clipboard.writeText(newOrderId);
+            } catch (err) {
+                // Ignore clipboard errors
+            }
+
+            // Redirect to tracking page after 1 second
             setTimeout(() => {
-                setIsSuccess(false);
-                setStep(1);
-                setFormData({
-                    name: '', email: '', company: '', phone: '', serviceType: '',
-                    budget: '', description: '', deadline: '', paymentAmount: '',
-                    paymentProof: null, paymentProofUrl: '', files: null, addons: []
-                });
-            }, 5000);
+                router.push(`/track-order?id=${newOrderId}`);
+            }, 1000);
         } catch (error: any) {
             console.error('❌ Order submission failed:', error);
             setIsSubmitting(false);
@@ -365,8 +357,19 @@ export default function OrderFormNew() {
         }
     };
 
-    const nextStep = () => setStep(step + 1);
-    const prevStep = () => setStep(step - 1);
+    const nextStep = () => {
+        setStep(step + 1);
+        if (pathname === '/order') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
+    const prevStep = () => {
+        setStep(step - 1);
+        if (pathname === '/order') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
 
     const steps = [
         { id: 1, title: 'Contact', icon: FiUser },
@@ -464,7 +467,6 @@ export default function OrderFormNew() {
                                     <p
                                         onClick={() => {
                                             navigator.clipboard.writeText(orderId);
-                                            alert('✅ Order ID copied to clipboard!');
                                         }}
                                         className="text-2xl md:text-3xl font-black text-blue-600 break-all cursor-pointer hover:text-blue-700 transition-colors"
                                         title="Click to copy"
@@ -474,7 +476,6 @@ export default function OrderFormNew() {
                                     <button
                                         onClick={() => {
                                             navigator.clipboard.writeText(orderId);
-                                            alert('✅ Order ID copied to clipboard!');
                                         }}
                                         className="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-all flex items-center gap-2 whitespace-nowrap text-sm"
                                         title="Copy to clipboard"

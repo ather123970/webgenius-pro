@@ -24,13 +24,15 @@ export default function AIChatButton() {
                     onClick={toggleChat}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
-                    className="flex items-center justify-center w-14 h-14 bg-white rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer"
+                    className="flex items-center justify-center w-14 h-14 bg-white rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer relative"
                 >
                     <img
                         src="/ai-assistant-icon.png"
                         alt="AI Assistant"
                         className="w-7 h-7 object-contain"
                     />
+                    {/* Red notification dot */}
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse border-2 border-white"></span>
                 </motion.button>
             </motion.div>
 

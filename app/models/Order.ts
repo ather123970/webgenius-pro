@@ -5,6 +5,7 @@ const OrderSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
+        index: true, // Index for fast lookup
     },
     name: {
         type: String,
@@ -55,14 +56,23 @@ const OrderSchema = new mongoose.Schema({
         type: String,
         default: 'confirmed',
         enum: ['confirmed', 'in-progress', 'review', 'completed'],
+        index: true, // Index for filtering by status
     },
     adminNote: {
         type: String,
     },
-    createdAt: {
+    lastUpdated: {
         type: Date,
         default: Date.now,
     },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+        index: true, // Index for sorting
+    },
 });
+
+// Compound index for common queries (status + createdAt)
+OrderSchema.index({ status: 1, createdAt: -1 });
 
 export default mongoose.models.Order || mongoose.model('Order', OrderSchema);

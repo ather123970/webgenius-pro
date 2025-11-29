@@ -54,9 +54,12 @@ export default function Header() {
                             <a
                                 key={link.name}
                                 href={link.href}
-                                className="px-5 py-2.5 text-sm font-semibold text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                                className="px-5 py-2.5 text-sm font-semibold text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all relative"
                             >
                                 {link.name}
+                                {link.name === 'Track Order' && (
+                                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
+                                )}
                             </a>
                         ))}
                     </nav>
@@ -100,9 +103,12 @@ export default function Header() {
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: i * 0.1 }}
                                     onClick={() => setIsMobileMenuOpen(false)}
-                                    className="text-3xl font-bold text-gray-900 hover:text-blue-600 hover:pl-4 transition-all"
+                                    className="text-3xl font-bold text-gray-900 hover:text-blue-600 hover:pl-4 transition-all relative"
                                 >
                                     {link.name}
+                                    {link.name === 'Track Order' && (
+                                        <span className="absolute top-0 -right-3 w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+                                    )}
                                 </motion.a>
                             ))}
                             <motion.a

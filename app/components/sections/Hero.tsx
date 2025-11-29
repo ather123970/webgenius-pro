@@ -324,7 +324,7 @@ export default function Hero() {
                                             <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-green-500"></div>
                                         </div>
                                         <div className="flex-1 bg-white rounded-lg md:rounded-xl px-3 py-2 md:px-5 md:py-2.5 text-xs md:text-sm text-gray-500 font-semibold border border-gray-200 truncate">
-                                            atherweb.agency
+                                            athertechy.com
                                         </div>
                                     </div>
 
@@ -398,17 +398,53 @@ export default function Hero() {
                                         </div>
 
                                         {/* Chart */}
-                                        <div className="h-32 md:h-44 rounded-xl md:rounded-2xl bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-50 p-4 md:p-6 flex items-end gap-1.5 md:gap-2.5 border-2 border-blue-100">
+                                        <div className="h-32 md:h-44 rounded-xl md:rounded-2xl bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-50 p-4 md:p-6 flex items-end gap-1.5 md:gap-2.5 border-2 border-blue-100 relative">
+                                            {/* Animated Zig-Zag Arrow Line - Follows Bar Heights */}
+                                            <motion.svg
+                                                className="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
+                                                viewBox="0 0 100 100"
+                                                preserveAspectRatio="none"
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: isCounterInView ? 1 : 0 }}
+                                                transition={{ delay: 0.5, duration: 0.5 }}
+                                            >
+                                                {/* Zig-Zag Path Following Bar Heights */}
+                                                <motion.path
+                                                    d="M 6 50 L 18 30 L 30 40 L 42 10 L 54 20 L 66 0 L 78 5 L 90 -5"
+                                                    stroke="#3b82f6"
+                                                    strokeWidth="3"
+                                                    fill="none"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    initial={{ pathLength: 0 }}
+                                                    animate={{ pathLength: isCounterInView ? 1 : 0 }}
+                                                    transition={{
+                                                        delay: 0.5,
+                                                        duration: 3,
+                                                        ease: "easeInOut"
+                                                    }}
+                                                />
+                                                {/* Arrow Head at End - Filled Triangle */}
+                                                <motion.polygon
+                                                    points="95,-5 90,-2 90,-8"
+                                                    fill="#3b82f6"
+                                                    initial={{ opacity: 0, scale: 0 }}
+                                                    animate={{ opacity: isCounterInView ? 1 : 0, scale: isCounterInView ? 1 : 0 }}
+                                                    transition={{ delay: 3.3, duration: 0.3 }}
+                                                    style={{ transformOrigin: "92px -5px" }}
+                                                />
+                                            </motion.svg>
+
+                                            {/* Bars - Sequential Animation */}
                                             {[50, 70, 60, 90, 80, 100, 95, 105].map((height, i) => (
                                                 <motion.div
                                                     key={i}
                                                     initial={{ scaleY: 0 }}
-                                                    animate={{ scaleY: 1 }}
+                                                    animate={{ scaleY: isCounterInView ? 1 : 0 }}
                                                     transition={{
-                                                        delay: 0.8 + i * 0.08,
-                                                        duration: 0.7,
-                                                        type: "spring",
-                                                        stiffness: 90
+                                                        delay: i * 0.35,
+                                                        duration: 0.3,
+                                                        ease: "easeOut"
                                                     }}
                                                     className="flex-1 bg-gradient-to-t from-blue-600 via-cyan-500 to-cyan-400 rounded-t-lg md:rounded-t-xl origin-bottom shadow-lg"
                                                     style={{ height: `${Math.min(100, height)}%` }}

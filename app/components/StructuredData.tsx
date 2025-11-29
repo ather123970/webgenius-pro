@@ -31,7 +31,7 @@ export default function StructuredData() {
             "areaServed": "Worldwide",
             "availableLanguage": ["English", "Urdu"]
         },
-        "email": "muhammadather212437@gmail.com",
+        "email": "businessman2124377@gmail.com",
         "sameAs": [
             "https://www.facebook.com/athertechy",
             "https://www.linkedin.com/company/athertechy",

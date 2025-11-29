@@ -56,11 +56,11 @@ export default function OrderForm() {
     // Initialize EmailJS and handle URL parameters
     useEffect(() => {
         emailjs.init('NP2Sat5tqcJqQqoQ2');
-        
+
         // Pre-fill form from URL parameters
         const service = searchParams.get('service');
         const packageParam = searchParams.get('package');
-        
+
         if (service || packageParam) {
             setFormData(prev => ({
                 ...prev,
@@ -71,14 +71,14 @@ export default function OrderForm() {
     }, [searchParams]);
 
     const [formData, setFormData] = useState({
-        name: '', 
-        email: '', 
-        company: '', 
-        phone: '', 
-        serviceType: '', 
-        budget: '', 
-        description: '', 
-        deadline: '', 
+        name: '',
+        email: '',
+        company: '',
+        phone: '',
+        serviceType: '',
+        budget: '',
+        description: '',
+        deadline: '',
         paymentAmount: '',
         paymentProof: null as File | null,
         files: null as FileList | null
@@ -133,7 +133,7 @@ export default function OrderForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         // Validate payment
         if (!validatePayment()) {
             setIsSubmitting(false);
@@ -163,7 +163,7 @@ export default function OrderForm() {
                     deadline: formData.deadline || 'Not specified',
                     order_date: new Date().toLocaleString(),
                     order_status: 'Confirmed - Payment Received',
-                    tracking_link: `https://atherweb.agency/track-order?id=${newOrderId}`
+                    tracking_link: `https://athertechy.com/track-order?id=${newOrderId}`
                 },
                 'NP2Sat5tqcJqQqoQ2' // Your Public Key
             );
@@ -188,7 +188,7 @@ export default function OrderForm() {
                     deadline: formData.deadline || 'Not specified',
                     order_date: new Date().toLocaleString(),
                     order_status: 'Confirmed - Payment Received',
-                    tracking_link: `https://atherweb.agency/track-order?id=${newOrderId}`,
+                    tracking_link: `https://athertechy.com/track-order?id=${newOrderId}`,
                     to_email: 'businessman2124377@gmail.com', // Business email for admin notification
                     notification_type: 'ADMIN_NOTIFICATION'
                 },
@@ -213,10 +213,10 @@ export default function OrderForm() {
             setTimeout(() => {
                 setIsSuccess(false);
                 setStep(1);
-                setFormData({ 
-                    name: '', email: '', company: '', phone: '', serviceType: '', 
-                    budget: '', description: '', deadline: '', paymentAmount: '', 
-                    paymentProof: null, files: null 
+                setFormData({
+                    name: '', email: '', company: '', phone: '', serviceType: '',
+                    budget: '', description: '', deadline: '', paymentAmount: '',
+                    paymentProof: null, files: null
                 });
             }, 5000);
         } catch (error: any) {
@@ -263,7 +263,7 @@ export default function OrderForm() {
                                 </div>
                                 <h3 className="text-3xl font-black text-gray-900 mb-3">Order Confirmed! 🎉</h3>
                                 <p className="text-lg text-gray-600 mb-6">Payment received and order is being processed.</p>
-                                
+
                                 {/* Order ID Display */}
                                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-6 border-2 border-blue-200">
                                     <p className="text-sm text-gray-600 font-bold mb-2">Your Order ID</p>
@@ -271,7 +271,7 @@ export default function OrderForm() {
                                     <p className="text-xs text-gray-500 mt-3">Save this ID to track your order</p>
                                 </div>
 
-                                <a 
+                                <a
                                     href={`/track-order?id=${orderId}`}
                                     className="inline-block px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all"
                                 >
@@ -371,7 +371,7 @@ export default function OrderForm() {
                                 {step === 3 && (
                                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
                                         <h3 className="text-2xl font-black text-gray-900 mb-8">Payment Details (30% Advance)</h3>
-                                        
+
                                         {/* Show required advance payment */}
                                         {formData.serviceType && formData.budget && (
                                             <div className="space-y-4">
@@ -391,7 +391,7 @@ export default function OrderForm() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                
+
                                                 {/* Payment breakdown */}
                                                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                                                     <p className="text-xs font-bold text-gray-600 mb-3">PAYMENT BREAKDOWN</p>
@@ -414,13 +414,13 @@ export default function OrderForm() {
                                         {/* Payment amount input */}
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold text-gray-700">Amount Paid (PKR) *</label>
-                                            <input 
-                                                type="number" 
-                                                name="paymentAmount" 
-                                                value={formData.paymentAmount} 
+                                            <input
+                                                type="number"
+                                                name="paymentAmount"
+                                                value={formData.paymentAmount}
                                                 onChange={handleChange}
                                                 className="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium"
-                                                placeholder="Enter amount you paid" 
+                                                placeholder="Enter amount you paid"
                                             />
                                             <p className="text-xs text-gray-500">Enter exact amount (checking thousands only)</p>
                                         </div>
@@ -429,8 +429,8 @@ export default function OrderForm() {
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold text-gray-700">Payment Proof Screenshot *</label>
                                             <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-blue-500 transition-all cursor-pointer group">
-                                                <input 
-                                                    type="file" 
+                                                <input
+                                                    type="file"
                                                     accept="image/*"
                                                     onChange={(e) => handleFileChange(e, 'paymentProof')}
                                                     className="hidden"
@@ -483,8 +483,8 @@ export default function OrderForm() {
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold text-gray-700">Additional Files (Optional)</label>
                                             <div className="border-2 border-dashed border-gray-300 rounded-2xl p-10 text-center hover:border-blue-500 transition-all cursor-pointer group">
-                                                <input 
-                                                    type="file" 
+                                                <input
+                                                    type="file"
                                                     multiple
                                                     onChange={(e) => handleFileChange(e, 'files')}
                                                     className="hidden"

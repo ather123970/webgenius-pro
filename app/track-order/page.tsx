@@ -2,61 +2,62 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { useSearchParams } from 'next/navigation';
-import { FiSearch, FiCheckCircle, FiClock, FiTruck, FiAlertCircle } from 'react-icons/fi';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { FiSearch, FiCheckCircle, FiClock, FiTruck, FiAlertCircle, FiHome, FiTrash2 } from 'react-icons/fi';
 import Link from 'next/link';
 
 function TrackOrderContent() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const [orderId, setOrderId] = useState('');
     const [order, setOrder] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [cancelling, setCancelling] = useState(false);
 
     useEffect(() => {
         const id = searchParams.get('id');
         if (id) {
             setOrderId(id);
             searchOrder(id);
+
+            // Auto-refresh every 15 seconds for real-time updates
+            const interval = setInterval(() => {
+                searchOrder(id, true); // Silent refresh
+            }, 15000);
+
+            return () => clearInterval(interval);
         }
     }, [searchParams]);
 
-    const searchOrder = async (id: string) => {
-        setLoading(true);
-        setError('');
+    const searchOrder = async (id: string, silent = false) => {
+        if (!silent) {
+            setLoading(true);
+            setError('');
+        }
 
         try {
-            // Try database first
             const response = await fetch(`/api/orders/${id}`);
             const data = await response.json();
 
-            if (data.success) {
+            if (data.success && data.data) {
                 setOrder(data.data);
-                setLoading(false);
-                return;
+            } else {
+                setOrder(null);
+                if (!silent) {
+                    setError('Order not found. Please check your Order ID and try again.');
+                }
             }
         } catch (err) {
-            console.warn('Database fetch failed, checking localStorage...', err);
-        }
-
-        // Fallback to localStorage if database failed
-        try {
-            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-            const foundOrder = orders.find((o: any) => o.orderId === id);
-
-            if (foundOrder) {
-                console.log('✅ Order found in localStorage backup');
-                setOrder(foundOrder);
-            } else {
-                setError('Order not found. Please check your Order ID and try again.');
-                setOrder(null);
-            }
-        } catch (localErr) {
-            console.error('Error checking localStorage:', localErr);
-            setError('Order not found. Please check your Order ID.');
+            console.error('Failed to fetch order:', err);
             setOrder(null);
+            if (!silent) {
+                setError('Order not found. Please check your Order ID.');
+            }
         } finally {
-            setLoading(false);
+            if (!silent) {
+                setLoading(false);
+            }
         }
     };
 
@@ -64,6 +65,37 @@ function TrackOrderContent() {
         e.preventDefault();
         if (orderId.trim()) {
             searchOrder(orderId);
+        }
+    };
+
+    const handleCancelOrder = async () => {
+        if (!order) return;
+
+        const confirmed = window.confirm(
+            'Are you sure you want to cancel this order? This action cannot be undone.'
+        );
+
+        if (!confirmed) return;
+
+        setCancelling(true);
+        try {
+            const response = await fetch(`/api/orders/${order._id}`, {
+                method: 'DELETE',
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('Order cancelled successfully!');
+                router.push('/');
+            } else {
+                alert('Failed to cancel order: ' + (data.error || 'Unknown error'));
+            }
+        } catch (err) {
+            console.error('Error cancelling order:', err);
+            alert('Failed to cancel order. Please try again or contact support.');
+        } finally {
+            setCancelling(false);
         }
     };
 
@@ -119,6 +151,21 @@ function TrackOrderContent() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-20">
             <div className="container-custom">
+                {/* Back to Home Button */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-8"
+                >
+                    <button
+                        onClick={() => router.push('/')}
+                        className="flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition-all shadow-md border-2 border-blue-200"
+                    >
+                        <FiHome className="w-5 h-5" />
+                        Back to Home
+                    </button>
+                </motion.div>
+
                 {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -295,17 +342,31 @@ function TrackOrderContent() {
                         </div>
 
                         {/* Support Section */}
-                        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl border-2 border-blue-200 p-8 text-center">
+                        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl border-2 border-blue-200 p-8 text-center mb-8">
                             <h3 className="text-xl font-black text-gray-900 mb-3">Need Help?</h3>
                             <p className="text-gray-600 mb-6">Have questions about your order? Contact our support team.</p>
                             <div className="flex flex-wrap justify-center gap-4">
-                                <a href="mailto:support@atherweb.agency" className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all">
+                                <a href="mailto:businessman2124377@gmail.com" className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all">
                                     Email Support
                                 </a>
-                                <a href="https://wa.me/923001234567" target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all">
+                                <a href="https://wa.me/923434153736" target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all">
                                     WhatsApp
                                 </a>
                             </div>
+                        </div>
+
+                        {/* Cancel Order Section */}
+                        <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl border-2 border-red-200 p-8 text-center">
+                            <h3 className="text-xl font-black text-gray-900 mb-3">Cancel Order</h3>
+                            <p className="text-gray-600 mb-6">Need to cancel this order? This action cannot be undone.</p>
+                            <button
+                                onClick={handleCancelOrder}
+                                disabled={cancelling}
+                                className="px-6 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto"
+                            >
+                                <FiTrash2 className="w-5 h-5" />
+                                {cancelling ? 'Cancelling...' : 'Cancel Order'}
+                            </button>
                         </div>
                     </motion.div>
                 )}

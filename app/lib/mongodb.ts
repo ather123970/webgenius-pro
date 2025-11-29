@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://muhammadather212437:2124377as@cluster0.3zxlmjn.mongodb.net/webgenius-pro?retryWrites=true&w=majority&appName=Cluster0';
+const MONGODB_URI = 'mongodb+srv://athertechy:2124377as@cluster0.kyusycb.mongodb.net/webgenius-pro?appName=Cluster0';
 
 if (!MONGODB_URI) {
     throw new Error('Please define the MONGODB_URI environment variable inside .env.local');

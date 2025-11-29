@@ -8,6 +8,7 @@ import Process from '@/app/components/sections/Process';
 import Testimonials from '@/app/components/sections/Testimonials';
 import OrderForm from '@/app/components/sections/OrderFormWrapper';
 import Contact from '@/app/components/sections/Contact';
+import SocialMediaSection from '@/app/components/sections/SocialMediaSection';
 import Footer from '@/app/components/sections/Footer';
 import WhatsAppButton from '@/app/components/WhatsAppButton';
 import AIChatButton from '@/app/components/AIChatButton';
@@ -28,6 +29,7 @@ export default function Home() {
                 <Testimonials />
                 <OrderForm />
                 <Contact />
+                <SocialMediaSection />
             </main>
             <Footer />
             <WhatsAppButton />
