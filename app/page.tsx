@@ -1,18 +1,21 @@
+import dynamic from 'next/dynamic';
 import Header from '@/app/components/sections/Header';
 import Hero from '@/app/components/sections/Hero';
-import Services from '@/app/components/sections/Services';
-import Deals from '@/app/components/sections/Deals';
-import Portfolio from '@/app/components/sections/Portfolio';
-import Team from '@/app/components/sections/Team';
-import Process from '@/app/components/sections/Process';
-import Testimonials from '@/app/components/sections/Testimonials';
-import OrderForm from '@/app/components/sections/OrderFormWrapper';
-import Contact from '@/app/components/sections/Contact';
-import SocialMediaSection from '@/app/components/sections/SocialMediaSection';
-import Footer from '@/app/components/sections/Footer';
 import WhatsAppButton from '@/app/components/WhatsAppButton';
 import AIChatButton from '@/app/components/AIChatButton';
 import StructuredData from '@/app/components/StructuredData';
+
+// Lazy load below-the-fold components
+const Services = dynamic(() => import('@/app/components/sections/Services'));
+const Deals = dynamic(() => import('@/app/components/sections/Deals'));
+const Portfolio = dynamic(() => import('@/app/components/sections/Portfolio'));
+const Team = dynamic(() => import('@/app/components/sections/Team'));
+const Process = dynamic(() => import('@/app/components/sections/Process'));
+const Testimonials = dynamic(() => import('@/app/components/sections/Testimonials'));
+const OrderForm = dynamic(() => import('@/app/components/sections/OrderFormWrapper'));
+const Contact = dynamic(() => import('@/app/components/sections/Contact'));
+const SocialMediaSection = dynamic(() => import('@/app/components/sections/SocialMediaSection'));
+const Footer = dynamic(() => import('@/app/components/sections/Footer'));
 
 export default function Home() {
     return (

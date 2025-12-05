@@ -2,14 +2,20 @@
 
 import React from 'react';
 
+const BASE_URL = 'https://www.athertechy.com';
+const AGENCY_NAME = 'AtherTechy';
+const PHONE = '03434153736';
+const EMAIL = 'muhammadather212437@gmail.com';
+const ADDRESS = 'Lahore, Pakistan';
+
 export default function StructuredData() {
     const organizationSchema = {
         "@context": "https://schema.org",
         "@type": "Organization",
-        "name": "AtherTechy",
+        "name": AGENCY_NAME,
         "alternateName": "Ather Web Agency",
-        "url": "https://athertechy.onrender.com",
-        "logo": "https://athertechy.onrender.com/faviicon.png",
+        "url": BASE_URL,
+        "logo": `${BASE_URL}/faviicon.png`,
         "description": "Premium software development agency specializing in web applications, Shopify stores, UI/UX design, SEO, and AI solutions.",
         "foundingDate": "2023",
         "founders": [
@@ -26,12 +32,13 @@ export default function StructuredData() {
         },
         "contactPoint": {
             "@type": "ContactPoint",
-            "telephone": "+92-343-4153736",
+            "telephone": `+92-${PHONE}`,
             "contactType": "Customer Service",
+            "email": EMAIL,
             "areaServed": "Worldwide",
             "availableLanguage": ["English", "Urdu"]
         },
-        "email": "businessman2124377@gmail.com",
+        "email": EMAIL,
         "sameAs": [
             "https://www.facebook.com/athertechy",
             "https://www.linkedin.com/company/athertechy",
@@ -47,19 +54,38 @@ export default function StructuredData() {
         }
     };
 
+    const localBusinessSchema = {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": AGENCY_NAME,
+        "image": `${BASE_URL}/faviicon.png`,
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": ADDRESS,
+            "addressLocality": "Lahore",
+            "addressRegion": "Punjab",
+            "addressCountry": "PK"
+        },
+        "telephone": PHONE,
+        "email": EMAIL,
+        "url": BASE_URL,
+        "priceRange": "$$",
+        "openingHours": "Mo-Fr 09:00-18:00"
+    };
+
     const websiteSchema = {
         "@context": "https://schema.org",
         "@type": "WebSite",
-        "name": "AtherTechy",
-        "url": "https://athertechy.onrender.com",
+        "name": AGENCY_NAME,
+        "url": BASE_URL,
         "description": "Professional web development agency offering custom solutions for modern businesses",
         "publisher": {
             "@type": "Organization",
-            "name": "AtherTechy"
+            "name": AGENCY_NAME
         },
         "potentialAction": {
             "@type": "SearchAction",
-            "target": "https://athertechy.onrender.com/?s={search_term_string}",
+            "target": `${BASE_URL}/?s={search_term_string}`,
             "query-input": "required name=search_term_string"
         }
     };
@@ -94,7 +120,7 @@ export default function StructuredData() {
             "serviceType": "Web Application Development",
             "provider": {
                 "@type": "Organization",
-                "name": "AtherTechy"
+                "name": AGENCY_NAME
             },
             "description": "Custom web applications built with React, Next.js, and modern technologies for startups and enterprises",
             "areaServed": "Worldwide"
@@ -105,7 +131,7 @@ export default function StructuredData() {
             "serviceType": "UI/UX Design",
             "provider": {
                 "@type": "Organization",
-                "name": "AtherTechy"
+                "name": AGENCY_NAME
             },
             "description": "Professional UI/UX design services focused on conversion, user experience, and modern aesthetics",
             "areaServed": "Worldwide"
@@ -116,7 +142,7 @@ export default function StructuredData() {
             "serviceType": "SEO Optimization",
             "provider": {
                 "@type": "Organization",
-                "name": "AtherTechy"
+                "name": AGENCY_NAME
             },
             "description": "Technical SEO, on-page optimization, and search engine ranking improvements for better visibility",
             "areaServed": "Worldwide"
@@ -142,25 +168,25 @@ export default function StructuredData() {
                 "@type": "ListItem",
                 "position": 1,
                 "name": "Home",
-                "item": "https://athertechy.onrender.com"
+                "item": BASE_URL
             },
             {
                 "@type": "ListItem",
                 "position": 2,
                 "name": "Services",
-                "item": "https://athertechy.onrender.com/#services"
+                "item": `${BASE_URL}/#services`
             },
             {
                 "@type": "ListItem",
                 "position": 3,
                 "name": "Portfolio",
-                "item": "https://athertechy.onrender.com/#portfolio"
+                "item": `${BASE_URL}/#portfolio`
             },
             {
                 "@type": "ListItem",
                 "position": 4,
                 "name": "Contact",
-                "item": "https://athertechy.onrender.com/#contact"
+                "item": `${BASE_URL}/#contact`
             }
         ]
     };
@@ -217,6 +243,10 @@ export default function StructuredData() {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
             />
             <script
                 type="application/ld+json"

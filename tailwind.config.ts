@@ -8,6 +8,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-inter)', 'sans-serif'],
+        display: ['var(--font-space-grotesk)', 'sans-serif'],
+      },
       colors: {
         primary: {
           DEFAULT: '#1766FF',

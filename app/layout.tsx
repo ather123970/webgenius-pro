@@ -1,9 +1,22 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
+const inter = Inter({
+    subsets: ['latin'],
+    display: 'swap',
+    variable: '--font-inter',
+});
+
+const spaceGrotesk = Space_Grotesk({
+    subsets: ['latin'],
+    display: 'swap',
+    variable: '--font-space-grotesk',
+});
+
 export const metadata: Metadata = {
-    metadataBase: new URL('https://athertechy.onrender.com'),
+    metadataBase: new URL('https://www.athertechy.com'),
     title: "AtherTechy - Premium Web Development & Shopify Agency | Pakistan",
     description: "Leading software agency in Pakistan specializing in custom web apps, Shopify stores, UI/UX design, SEO optimization, and AI solutions. Turn your ideas into profitable digital products with expert React, Next.js, and e-commerce development.",
     keywords: [
@@ -42,7 +55,7 @@ export const metadata: Metadata = {
         "digital agency",
         "tech solutions provider"
     ],
-    authors: [{ name: "AtherTechy", url: "https://athertechy.onrender.com" }],
+    authors: [{ name: "AtherTechy", url: "https://www.athertechy.com" }],
     creator: "AtherTechy",
     publisher: "AtherTechy",
 
@@ -62,7 +75,7 @@ export const metadata: Metadata = {
         description: "Transform your business with expert web development, Shopify stores, and custom software solutions. Trusted by 50+ brands worldwide for stunning, high-performance digital products.",
         type: "website",
         locale: "en_US",
-        url: "https://athertechy.onrender.com",
+        url: "https://www.athertechy.com",
         siteName: "AtherTechy",
         images: [
             {
@@ -96,7 +109,7 @@ export const metadata: Metadata = {
     },
 
     alternates: {
-        canonical: "https://athertechy.onrender.com",
+        canonical: "https://www.athertechy.com",
     },
 
     category: "technology",
@@ -118,13 +131,11 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" className="scroll-smooth">
+        <html lang="en" className={`scroll-smooth ${inter.variable} ${spaceGrotesk.variable}`}>
             <head>
                 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
                 <meta name="theme-color" content="#2563eb" />
                 <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-                <link rel="preconnect" href="https://fonts.googleapis.com" />
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
             </head>
             <body className="antialiased">
                 <Script
