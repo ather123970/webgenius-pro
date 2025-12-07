@@ -250,7 +250,7 @@ export default function OrderFormNew() {
                         to_email: formData.email, // CRITICAL: Customer's email
                         customer_email: formData.email,
                         from_name: "Ather Web Agency",
-                        reply_to: "businessman2124377@gmail.com", // Where customer can reply
+                        reply_to: "athertechy@gmail.com", // Where customer can reply
                         phone: formData.phone || 'Not provided',
                         company: formData.company || 'Not provided',
                         service: formData.serviceType,
@@ -281,7 +281,7 @@ export default function OrderFormNew() {
                     {
                         order_id: newOrderId,
                         to_name: "Admin",
-                        to_email: 'businessman2124377@gmail.com', // CRITICAL: Admin's email
+                        to_email: 'athertechy@gmail.com', // CRITICAL: Admin's email
                         customer_email: formData.email,
                         from_name: formData.name,
                         reply_to: formData.email, // Admin can reply to customer

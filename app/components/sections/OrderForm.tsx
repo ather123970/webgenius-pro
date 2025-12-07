@@ -189,7 +189,7 @@ export default function OrderForm() {
                     order_date: new Date().toLocaleString(),
                     order_status: 'Confirmed - Payment Received',
                     tracking_link: `https://athertechy.com/track-order?id=${newOrderId}`,
-                    to_email: 'businessman2124377@gmail.com', // Business email for admin notification
+                    to_email: 'athertechy@gmail.com', // Business email for admin notification
                     notification_type: 'ADMIN_NOTIFICATION'
                 },
                 'NP2Sat5tqcJqQqoQ2' // Your Public Key

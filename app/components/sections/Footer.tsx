@@ -54,9 +54,9 @@ export default function Footer() {
 
                         {/* Contact */}
                         <div className="space-y-3">
-                            <a href="mailto:businessman2124377@gmail.com" className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium">
+                            <a href="mailto:athertechy@gmail.com" className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium">
                                 <FiMail className="w-4 h-4 text-blue-400" />
-                                businessman2124377@gmail.com
+                                athertechy@gmail.com
                             </a>
                             <div className="flex items-center gap-2 text-gray-300 font-medium">
                                 <FiMapPin className="w-4 h-4 text-blue-400" />

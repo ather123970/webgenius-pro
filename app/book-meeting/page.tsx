@@ -63,7 +63,7 @@ function BookMeetingContent() {
                 to_email: formData.email, // CRITICAL: Customer's email
                 customer_email: formData.email,
                 from_name: "Ather Web Agency",
-                reply_to: "businessman2124377@gmail.com", // Where customer can reply
+                reply_to: "athertechy@gmail.com", // Where customer can reply
                 phone: formData.phone,
                 company: formData.company || 'Not provided',
                 service: formData.service || 'Not specified',
@@ -91,7 +91,7 @@ function BookMeetingContent() {
             {
                 meeting_id: meetingId,
                 to_name: "Admin",
-                to_email: 'businessman2124377@gmail.com', // CRITICAL: Admin's email
+                to_email: 'athertechy@gmail.com', // CRITICAL: Admin's email
                 customer_email: formData.email,
                 from_name: formData.name,
                 reply_to: formData.email, // Admin can reply to customer

@@ -29,7 +29,7 @@ export default function Contact() {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            href="mailto:businessman2124377@gmail.com"
+                            href="mailto:athertechy@gmail.com"
                             className="group p-8 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 hover:border-blue-500 transition-all card-hover"
                         >
                             <div className="w-14 h-14 rounded-xl bg-blue-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
@@ -37,7 +37,7 @@ export default function Contact() {
                             </div>
                             <h3 className="text-xl font-black text-gray-900 mb-2">Email Us</h3>
                             <p className="text-gray-600 text-sm mb-4 font-medium">Quick response guaranteed</p>
-                            <span className="text-blue-600 font-black text-sm">businessman2124377@gmail.com</span>
+                            <span className="text-blue-600 font-black text-sm">athertechy@gmail.com</span>
                         </motion.a>
 
                         {/* WhatsApp */}
