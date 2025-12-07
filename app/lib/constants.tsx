@@ -540,7 +540,7 @@ export const PORTFOLIO_ITEMS = [
         id: 9,
         title: 'EcoSmart Home App',
         category: 'IoT Dashboard',
-        image: 'https://images.unsplash.com/photo-1558002038-1091a166111c?q=80&w=2070&auto=format&fit=crop',
+        image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=2070&auto=format&fit=crop',
         client: 'GreenLiving Tech',
         niche: 'Smart Home',
         description: 'Clean, nature-inspired dashboard for managing smart home energy, security, and automation.',
