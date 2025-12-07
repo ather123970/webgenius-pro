@@ -11,7 +11,7 @@ const http = require('http');
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 const AGENCY_NAME = 'AtherTechy';
 const PHONE = '03434153736';
-const EMAIL = 'muhammadather212437@gmail.com';
+const EMAIL = 'athertechy@gmail.com';
 
 const results = {
     passed: [],

@@ -5,7 +5,7 @@ import React from 'react';
 const BASE_URL = 'https://www.athertechy.com';
 const AGENCY_NAME = 'AtherTechy';
 const PHONE = '03434153736';
-const EMAIL = 'muhammadather212437@gmail.com';
+const EMAIL = 'athertechy@gmail.com';
 const ADDRESS = 'Lahore, Pakistan';
 
 export default function StructuredData() {
