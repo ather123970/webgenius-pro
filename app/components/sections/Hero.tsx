@@ -46,7 +46,7 @@ export default function Hero() {
 
     const counterRef = React.useRef(null);
     const isCounterInView = useInView(counterRef, { once: true, margin: "-100px" });
-    const revenue = useCounter(450, 2500, isCounterInView);
+    const revenue = useCounter(450, 1500, isCounterInView); // Reduced from 2500ms to 1500ms
 
     const services = [
         { icon: 'shopify', label: "Shopify", count: "20+" },
@@ -71,16 +71,16 @@ export default function Hero() {
                 <div className="grid lg:grid-cols-2 gap-12 items-center">
                     {/* LEFT: Content */}
                     <motion.div
-                        initial={{ opacity: 0, x: -50 }}
+                        initial={{ opacity: 0, x: -30 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.8 }}
+                        transition={{ duration: 0.4 }}
                         className="space-y-8"
                     >
                         {/* Badge */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
+                            transition={{ delay: 0.1, duration: 0.3 }}
                             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-200"
                         >
                             <span className="relative flex h-2 w-2">
@@ -95,7 +95,7 @@ export default function Hero() {
                             <motion.h1
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3, duration: 0.8 }}
+                                transition={{ delay: 0.15, duration: 0.4 }}
                                 className="text-6xl lg:text-8xl xl:text-9xl font-black leading-[0.95] text-gray-900"
                             >
                                 We build Brands
@@ -108,7 +108,7 @@ export default function Hero() {
                             <motion.p
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5 }}
+                                transition={{ delay: 0.2, duration: 0.3 }}
                                 className="text-xl lg:text-2xl text-gray-700 font-medium leading-relaxed max-w-xl"
                             >
                                 Premium web apps, Shopify stores & AI solutions designed to drive real revenue.
@@ -120,7 +120,7 @@ export default function Hero() {
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.7 }}
+                            transition={{ delay: 0.3, duration: 0.3 }}
                             className="flex flex-wrap gap-4"
                         >
                             <motion.div
@@ -176,9 +176,9 @@ export default function Hero() {
 
                     {/* RIGHT: 3D Browser Mockup */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.4, duration: 1 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
                         className="relative h-[650px] md:h-[600px] lg:h-[750px] overflow-visible"
                     >
                         {/* Ather's Profile - Top Right with Service Badges */}
