@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { FiSearch, FiEdit2, FiX, FiCheckCircle, FiClock, FiTruck, FiAlertCircle, FiPackage, FiRefreshCw, FiBell } from 'react-icons/fi';
+import { FiSearch, FiEdit2, FiX, FiCheckCircle, FiClock, FiTruck, FiAlertCircle, FiPackage, FiRefreshCw, FiBell, FiTrash2 } from 'react-icons/fi';
 import Link from 'next/link';
 import emailjs from '@emailjs/browser';
 
@@ -25,6 +25,8 @@ export default function AdminDashboard() {
     const [lastUpdate, setLastUpdate] = useState(new Date());
     const [showAnnounce, setShowAnnounce] = useState(false);
     const [announcement, setAnnouncement] = useState({ title: '', message: '' });
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [orderToDelete, setOrderToDelete] = useState<any>(null);
 
     // Initialize EmailJS and load orders
     useEffect(() => {
@@ -171,6 +173,53 @@ export default function AdminDashboard() {
             setNotification({ show: true, message: error.message || 'Failed to update order', type: 'error' });
         }
 
+        setLoading(false);
+        setTimeout(() => setNotification({ show: false, message: '', type: '' }), 3000);
+    };
+
+    const deleteOrder = async () => {
+        if (!orderToDelete) return;
+
+        setLoading(true);
+        setShowDeleteConfirm(false);
+
+        try {
+            const response = await fetch(`/api/orders/${orderToDelete.orderId}`, {
+                method: 'DELETE',
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to delete order');
+            }
+
+            // Remove from local state
+            setOrders(prev => prev.filter(o => o.orderId !== orderToDelete.orderId));
+
+            // Clear selected order if it was deleted
+            if (selectedOrder?.orderId === orderToDelete.orderId) {
+                setSelectedOrder(null);
+            }
+
+            setNotification({
+                show: true,
+                message: `Order ${orderToDelete.orderId} deleted successfully!`,
+                type: 'success'
+            });
+
+            console.log('✅ Order deleted:', orderToDelete.orderId);
+
+        } catch (error: any) {
+            console.error('Failed to delete order:', error);
+            setNotification({
+                show: true,
+                message: error.message || 'Failed to delete order',
+                type: 'error'
+            });
+        }
+
+        setOrderToDelete(null);
         setLoading(false);
         setTimeout(() => setNotification({ show: false, message: '', type: '' }), 3000);
     };
@@ -336,13 +385,25 @@ export default function AdminDashboard() {
                             <h2 className="text-3xl font-black text-gray-900">Order Details</h2>
                             <div className="flex items-center gap-3">
                                 {!isEditing ? (
-                                    <button
-                                        onClick={() => setIsEditing(true)}
-                                        className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all flex items-center gap-2"
-                                    >
-                                        <FiEdit2 className="w-4 h-4" />
-                                        Update Status
-                                    </button>
+                                    <>
+                                        <button
+                                            onClick={() => setIsEditing(true)}
+                                            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all flex items-center gap-2"
+                                        >
+                                            <FiEdit2 className="w-4 h-4" />
+                                            Update Status
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setOrderToDelete(selectedOrder);
+                                                setShowDeleteConfirm(true);
+                                            }}
+                                            className="px-6 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-all flex items-center gap-2"
+                                        >
+                                            <FiTrash2 className="w-4 h-4" />
+                                            Delete Order
+                                        </button>
+                                    </>
                                 ) : (
                                     <button
                                         onClick={() => setIsEditing(false)}
@@ -489,6 +550,61 @@ export default function AdminDashboard() {
                             ))}
                         </div>
                     </motion.div>
+                )}
+
+                {/* Delete Confirmation Modal */}
+                {showDeleteConfirm && orderToDelete && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8"
+                        >
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                    <FiTrash2 className="w-6 h-6 text-red-600" />
+                                </div>
+                                <div>
+                                    <h3 className="text-2xl font-black text-gray-900">Delete Order?</h3>
+                                    <p className="text-sm text-gray-600">This action cannot be undone</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-6">
+                                <p className="text-sm text-red-800 font-medium mb-2">
+                                    <strong>Warning:</strong> You are about to permanently delete this order:
+                                </p>
+                                <div className="space-y-1 text-sm text-red-700">
+                                    <p>• Order ID: <strong>{orderToDelete.orderId}</strong></p>
+                                    <p>• Customer: <strong>{orderToDelete.name}</strong></p>
+                                    <p>• Service: <strong>{orderToDelete.serviceType?.replace('-', ' ')}</strong></p>
+                                </div>
+                                <p className="text-sm text-red-800 font-bold mt-3">
+                                    This will remove the order from the database completely.
+                                </p>
+                            </div>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => {
+                                        setShowDeleteConfirm(false);
+                                        setOrderToDelete(null);
+                                    }}
+                                    className="flex-1 px-6 py-3 bg-gray-200 text-gray-900 rounded-xl font-bold hover:bg-gray-300 transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={deleteOrder}
+                                    disabled={loading}
+                                    className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    <FiTrash2 className="w-4 h-4" />
+                                    {loading ? 'Deleting...' : 'Delete Forever'}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
                 )}
             </div>
         </div>
