@@ -7,16 +7,27 @@ import { HiCode } from 'react-icons/hi';
 import Link from 'next/link';
 import Header from '@/app/components/sections/Header';
 import Footer from '@/app/components/sections/Footer';
+import { useGeolocation, formatGeoPrice, getCurrencySymbol } from '@/app/lib/useGeolocation';
 
 export default function WebAppsPage() {
-    const packages = [
-        { name: 'Affordable', price: '25,000', features: ['Single Page App', 'Basic UI', 'Contact Form', 'Responsive', '1 Month Support'], delivery: '2 weeks', icon: '🚀' },
-        { name: 'Branded Pro', price: '49,000', features: ['Multi-page App', 'Admin Dashboard', 'User Auth', 'Database', '2 Months Support'], delivery: '3-4 weeks', popular: true, icon: '⚡' },
-        { name: 'Branded Premium', price: '100,000', features: ['Advanced Features', 'Payment Gateway', 'API Integration', 'Custom Design', '3 Months Support'], delivery: '4-6 weeks', icon: '💎' },
-        { name: 'Exclusive Basic', price: '250,000', features: ['SaaS MVP', 'Complex Logic', 'Real-time Features', 'Scalable Arch', '4 Months Support'], delivery: '6-8 weeks', icon: '🔥' },
-        { name: 'Exclusive Pro', price: '500,000', features: ['Enterprise SaaS', 'Microservices', 'High Performance', 'Security Audit', '6 Months Support'], delivery: '8-12 weeks', icon: '👑' },
-        { name: 'Exclusive Premium', price: '900,000', features: ['Full Platform', 'AI Integration', 'Dedicated DevOps', 'SLA Support', '1 Year Support'], delivery: '3-4 months', icon: '🏆' }
+    const geoData = useGeolocation();
+
+    // Base prices in PKR (Pakistan prices)
+    const packagesData = [
+        { name: 'Affordable', basePricePKR: 25000, features: ['Single Page App', 'Basic UI', 'Contact Form', 'Responsive', '1 Month Support'], delivery: '2 weeks', icon: '🚀' },
+        { name: 'Branded Pro', basePricePKR: 49000, features: ['Multi-page App', 'Admin Dashboard', 'User Auth', 'Database', '2 Months Support'], delivery: '3-4 weeks', popular: true, icon: '⚡' },
+        { name: 'Branded Premium', basePricePKR: 100000, features: ['Advanced Features', 'Payment Gateway', 'API Integration', 'Custom Design', '3 Months Support'], delivery: '4-6 weeks', icon: '💎' },
+        { name: 'Exclusive Basic', basePricePKR: 250000, features: ['SaaS MVP', 'Complex Logic', 'Real-time Features', 'Scalable Arch', '4 Months Support'], delivery: '6-8 weeks', icon: '🔥' },
+        { name: 'Exclusive Pro', basePricePKR: 500000, features: ['Enterprise SaaS', 'Microservices', 'High Performance', 'Security Audit', '6 Months Support'], delivery: '8-12 weeks', icon: '👑' },
+        { name: 'Exclusive Premium', basePricePKR: 900000, features: ['Full Platform', 'AI Integration', 'Dedicated DevOps', 'SLA Support', '1 Year Support'], delivery: '3-4 months', icon: '🏆' }
     ];
+
+    // Convert PKR to USD base price, then apply geo pricing
+    const packages = packagesData.map(pkg => ({
+        ...pkg,
+        price: formatGeoPrice(pkg.basePricePKR / 278, geoData) // 278 is PKR to USD rate
+    }));
+
 
     return (
         <>
@@ -128,8 +139,8 @@ export default function WebAppsPage() {
                                     )}
 
                                     <div className={`absolute inset-0 ${pkg.popular
-                                            ? 'bg-gradient-to-br from-blue-50 via-cyan-50 to-indigo-50'
-                                            : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
+                                        ? 'bg-gradient-to-br from-blue-50 via-cyan-50 to-indigo-50'
+                                        : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'
                                         }`}></div>
 
                                     {/* Animated gradient orb */}
@@ -141,7 +152,7 @@ export default function WebAppsPage() {
                                         <div className="mb-6">
                                             <h3 className="text-2xl font-black mb-3 text-gray-900">{pkg.name}</h3>
                                             <div className="flex items-baseline gap-2">
-                                                <span className="text-sm text-gray-600 font-bold">PKR</span>
+                                                <span className="text-sm text-gray-600 font-bold">{geoData.currency}</span>
                                                 <span className={`text-4xl font-black ${pkg.popular ? 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent' : 'text-gray-900'
                                                     }`}>
                                                     {pkg.price}
@@ -167,8 +178,8 @@ export default function WebAppsPage() {
                                         <Link
                                             href={`/?service=web-app&package=${pkg.name}#order`}
                                             className={`group/btn relative overflow-hidden block w-full py-4 rounded-xl font-black text-center transition-all ${pkg.popular
-                                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg hover:shadow-2xl'
-                                                    : 'bg-gray-900 text-white hover:bg-gray-800'
+                                                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg hover:shadow-2xl'
+                                                : 'bg-gray-900 text-white hover:bg-gray-800'
                                                 }`}
                                         >
                                             <span className="relative flex items-center justify-center gap-2">

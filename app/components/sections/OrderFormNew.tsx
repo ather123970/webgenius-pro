@@ -6,6 +6,7 @@ import { FiSend, FiArrowRight, FiArrowLeft, FiUpload, FiAlertCircle, FiCheckCirc
 import Link from 'next/link';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import emailjs from '@emailjs/browser';
+import { useGeolocation } from '@/app/lib/useGeolocation';
 
 // Package pricing configuration
 const PACKAGES = {
@@ -82,6 +83,7 @@ export default function OrderFormNew() {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const router = useRouter();
+    const geoData = useGeolocation(); // Add geolocation detection
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -169,8 +171,13 @@ export default function OrderFormNew() {
     };
 
 
-    // Validate payment against selected package
+    // Validate payment against selected package (only for Pakistan/India)
     const validatePayment = (): boolean => {
+        // Skip validation for non-Pakistan/India users
+        if (!geoData.isLocal) {
+            return true; // No payment required
+        }
+
         if (!formData.serviceType || !formData.budget || !formData.paymentAmount) {
             setPaymentError('Please fill all payment fields');
             return false;
@@ -400,12 +407,21 @@ export default function OrderFormNew() {
         }
     };
 
-    const steps = [
-        { id: 1, title: 'Contact', icon: FiUser },
-        { id: 2, title: 'Project', icon: FiFileText },
-        { id: 3, title: 'Payment', icon: FiCreditCard },
-        { id: 4, title: 'Final', icon: FiPackage }
-    ];
+    // Conditional steps based on location
+    // Pakistan/India: 4 steps (Contact, Project, Payment, Final)
+    // Other countries: 3 steps (Contact, Project, Final) - No advance payment required
+    const steps = geoData.isLocal
+        ? [
+            { id: 1, title: 'Contact', icon: FiUser },
+            { id: 2, title: 'Project', icon: FiFileText },
+            { id: 3, title: 'Payment', icon: FiCreditCard },
+            { id: 4, title: 'Final', icon: FiPackage }
+        ]
+        : [
+            { id: 1, title: 'Contact', icon: FiUser },
+            { id: 2, title: 'Project', icon: FiFileText },
+            { id: 3, title: 'Final', icon: FiPackage }
+        ];
 
     return (
         <section id="order" className="py-20 bg-gradient-to-br from-slate-50 to-blue-50 relative overflow-hidden">
@@ -696,8 +712,8 @@ export default function OrderFormNew() {
                                     </motion.div>
                                 )}
 
-                                {/* Step 3: Payment Details */}
-                                {step === 3 && (
+                                {/* Step 3: Payment Details - ONLY FOR PAKISTAN/INDIA */}
+                                {step === 3 && geoData.isLocal && (
                                     <motion.div
                                         key="step3"
                                         initial={{ opacity: 0, x: 50 }}
@@ -872,8 +888,8 @@ export default function OrderFormNew() {
                                     </motion.div>
                                 )}
 
-                                {/* Step 4: Final Details */}
-                                {step === 4 && (
+                                {/* Step 3 OR 4: Final Details - Conditional based on location */}
+                                {((step === 3 && !geoData.isLocal) || (step === 4 && geoData.isLocal)) && (
                                     <motion.div
                                         key="step4"
                                         initial={{ opacity: 0, x: 50 }}

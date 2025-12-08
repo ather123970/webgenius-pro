@@ -7,16 +7,24 @@ import { SiShopify } from 'react-icons/si';
 import Link from 'next/link';
 import Header from '@/app/components/sections/Header';
 import Footer from '@/app/components/sections/Footer';
+import { useGeolocation, formatGeoPrice } from '@/app/lib/useGeolocation';
 
 export default function ShopifyPage() {
-    const packages = [
-        { name: 'Affordable', price: '30,000', features: ['Basic Theme Setup', '10 Products', 'Payment Setup', 'Basic SEO', '1 Month Support'], delivery: '1-2 weeks' },
-        { name: 'Branded Pro', price: '70,000', features: ['Premium Theme', '30 Products', 'Advanced SEO', 'Speed Optimization', '2 Months Support'], delivery: '2-3 weeks', popular: true },
-        { name: 'Branded Premium', price: '130,000', features: ['Custom Design', '50 Products', 'Email Marketing', 'Social Media Integration', '3 Months Support'], delivery: '3-4 weeks' },
-        { name: 'Exclusive Basic', price: '180,000', features: ['Custom Development', '100 Products', 'Advanced Analytics', 'Inventory System', '4 Months Support'], delivery: '4-5 weeks' },
-        { name: 'Exclusive Pro', price: '350,000', features: ['Enterprise Solution', 'Unlimited Products', 'Custom App', 'Multi-Language', '6 Months Support'], delivery: '6-8 weeks' },
-        { name: 'Exclusive Premium', price: '500,000', features: ['Full Scale E-commerce', 'Dedicated Team', '24/7 Priority Support', 'Global CDN', '1 Year Support'], delivery: '8-12 weeks' }
+    const geoData = useGeolocation();
+
+    const packagesData = [
+        { name: 'Affordable', basePricePKR: 30000, features: ['Basic Theme Setup', '10 Products', 'Payment Setup', 'Basic SEO', '1 Month Support'], delivery: '1-2 weeks' },
+        { name: 'Branded Pro', basePricePKR: 70000, features: ['Premium Theme', '30 Products', 'Advanced SEO', 'Speed Optimization', '2 Months Support'], delivery: '2-3 weeks', popular: true },
+        { name: 'Branded Premium', basePricePKR: 130000, features: ['Custom Design', '50 Products', 'Email Marketing', 'Social Media Integration', '3 Months Support'], delivery: '3-4 weeks' },
+        { name: 'Exclusive Basic', basePricePKR: 180000, features: ['Custom Development', '100 Products', 'Advanced Analytics', 'Inventory System', '4 Months Support'], delivery: '4-5 weeks' },
+        { name: 'Exclusive Pro', basePricePKR: 350000, features: ['Enterprise Solution', 'Unlimited Products', 'Custom App', 'Multi-Language', '6 Months Support'], delivery: '6-8 weeks' },
+        { name: 'Exclusive Premium', basePricePKR: 500000, features: ['Full Scale E-commerce', 'Dedicated Team', '24/7 Priority Support', 'Global CDN', '1 Year Support'], delivery: '8-12 weeks' }
     ];
+
+    const packages = packagesData.map(pkg => ({
+        ...pkg,
+        price: formatGeoPrice(pkg.basePricePKR / 278, geoData)
+    }));
 
     const features = [
         { icon: FiShoppingCart, title: 'Complete Store Setup', desc: 'From theme to payment gateway integration' },
@@ -148,7 +156,7 @@ export default function ShopifyPage() {
                                         <div className="mb-6">
                                             <h3 className="text-2xl font-black mb-3 text-gray-900">{pkg.name}</h3>
                                             <div className="flex items-baseline gap-2">
-                                                <span className="text-sm text-gray-600 font-bold">PKR</span>
+                                                <span className="text-sm text-gray-600 font-bold">{geoData.currency}</span>
                                                 <span className={`text-5xl font-black ${pkg.popular ? 'bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent' : 'text-gray-900'
                                                     }`}>
                                                     {pkg.price}
@@ -174,8 +182,8 @@ export default function ShopifyPage() {
                                         <Link
                                             href={`/?service=shopify&package=${pkg.name}#order`}
                                             className={`group/btn relative overflow-hidden block w-full py-4 rounded-xl font-black text-center transition-all ${pkg.popular
-                                                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg hover:shadow-2xl'
-                                                    : 'bg-gray-900 text-white hover:bg-gray-800'
+                                                ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg hover:shadow-2xl'
+                                                : 'bg-gray-900 text-white hover:bg-gray-800'
                                                 }`}
                                         >
                                             <span className="relative flex items-center justify-center gap-2">
