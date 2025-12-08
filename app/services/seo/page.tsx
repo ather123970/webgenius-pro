@@ -7,16 +7,23 @@ import { HiSearchCircle } from 'react-icons/hi';
 import Link from 'next/link';
 import Header from '@/app/components/sections/Header';
 import Footer from '@/app/components/sections/Footer';
+import { useGeolocation, formatGeoPrice } from '@/app/lib/useGeolocation';
 
 export default function SEOPage() {
-    const packages = [
-        { name: 'Affordable', price: '15,000', features: ['Basic Audit', 'Keyword Research', 'On-page SEO', 'Meta Tags', 'Monthly Report'], delivery: 'Monthly', badge: '🌱' },
-        { name: 'Branded Pro', price: '40,000', features: ['Technical SEO', 'Content Strategy', 'Backlink Building', 'Speed Opt', 'Bi-weekly Report'], delivery: 'Monthly', popular: true, badge: '🔥' },
-        { name: 'Branded Premium', price: '75,000', features: ['Advanced Link Building', 'Local SEO', 'Competitor Analysis', 'Content Creation', 'Weekly Report'], delivery: 'Monthly', badge: '💎' },
-        { name: 'Exclusive Basic', price: '100,000', features: ['National SEO', 'PR Outreach', 'Conversion Opt', 'Schema Markup', 'Priority Support'], delivery: 'Monthly', badge: '⚡' },
-        { name: 'Exclusive Pro', price: '200,000', features: ['International SEO', 'Enterprise Audit', 'Growth Hacking', 'Dedicated Manager', 'Custom Strategy'], delivery: 'Monthly', badge: '🚀' },
-        { name: 'Exclusive Premium', price: '400,000', features: ['Full Market Domination', 'Brand Reputation', 'Crisis Mgmt', 'Executive Reporting', '24/7 Support'], delivery: 'Monthly', badge: '👑' }
+    const geoData = useGeolocation();
+    const packagesData = [
+        { name: 'Affordable', basePricePKR: 15000, features: ['Basic Audit', 'Keyword Research', 'On-page SEO', 'Meta Tags', 'Monthly Report'], delivery: 'Monthly', badge: '🌱' },
+        { name: 'Branded Pro', basePricePKR: 40000, features: ['Technical SEO', 'Content Strategy', 'Backlink Building', 'Speed Opt', 'Bi-weekly Report'], delivery: 'Monthly', popular: true, badge: '🔥' },
+        { name: 'Branded Premium', basePricePKR: 75000, features: ['Advanced Link Building', 'Local SEO', 'Competitor Analysis', 'Content Creation', 'Weekly Report'], delivery: 'Monthly', badge: '💎' },
+        { name: 'Exclusive Basic', basePricePKR: 100000, features: ['National SEO', 'PR Outreach', 'Conversion Opt', 'Schema Markup', 'Priority Support'], delivery: 'Monthly', badge: '⚡' },
+        { name: 'Exclusive Pro', basePricePKR: 200000, features: ['International SEO', 'Enterprise Audit', 'Growth Hacking', 'Dedicated Manager', 'Custom Strategy'], delivery: 'Monthly', badge: '🚀' },
+        { name: 'Exclusive Premium', basePricePKR: 400000, features: ['Full Market Domination', 'Brand Reputation', 'Crisis Mgmt', 'Executive Reporting', '24/7 Support'], delivery: 'Monthly', badge: '👑' }
     ];
+
+    const packages = packagesData.map(pkg => ({
+        ...pkg,
+        price: formatGeoPrice(pkg.basePricePKR, geoData)
+    }));
 
     return (
         <>
@@ -131,7 +138,7 @@ export default function SEOPage() {
                                         <div className="mb-6">
                                             <h3 className="text-2xl font-black mb-3 text-gray-900">{pkg.name}</h3>
                                             <div className="flex items-baseline gap-2">
-                                                <span className="text-sm text-gray-600 font-bold">PKR</span>
+                                                <span className="text-sm text-gray-600 font-bold">{geoData.currency}</span>
                                                 <span className={`text-5xl font-black ${pkg.popular ? 'bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent' : 'text-gray-900'
                                                     }`}>
                                                     {pkg.price}
@@ -158,8 +165,8 @@ export default function SEOPage() {
                                         <Link
                                             href={`/?service=seo&package=${pkg.name}#order`}
                                             className={`group/btn relative overflow-hidden block w-full py-4 rounded-xl font-black text-center transition-all ${pkg.popular
-                                                    ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg hover:shadow-2xl'
-                                                    : 'bg-gray-900 text-white hover:bg-gray-800'
+                                                ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg hover:shadow-2xl'
+                                                : 'bg-gray-900 text-white hover:bg-gray-800'
                                                 }`}
                                         >
                                             <span className="relative flex items-center justify-center gap-2">

@@ -23,7 +23,7 @@ export default function ShopifyPage() {
 
     const packages = packagesData.map(pkg => ({
         ...pkg,
-        price: formatGeoPrice(pkg.basePricePKR / 278, geoData)
+        price: formatGeoPrice(pkg.basePricePKR, geoData)
     }));
 
     const features = [

@@ -5,45 +5,21 @@ import { useState, useEffect } from 'react';
 export interface GeolocationData {
     countryCode: string;
     currency: string;
-    exchangeRate: number;
+    currencySymbol: string;
     isPakistan: boolean;
-    isIndia: boolean;
-    isLocal: boolean; // Pakistan or India
+    isLocal: boolean; // Pakistan only (simplified)
     loading: boolean;
 }
 
-// Exchange rates (approximate market rates)
-const RATES: { [key: string]: number } = {
-    'USD': 1,
-    'PKR': 278,
-    'GBP': 0.79,
-    'EUR': 0.92,
-    'CAD': 1.36,
-    'AUD': 1.52,
-    'AED': 3.67,
-    'SAR': 3.75,
-    'INR': 83.5,
-};
-
-const CURRENCY_SYMBOLS: { [key: string]: string } = {
-    'USD': '$',
-    'PKR': 'Rs ',
-    'GBP': '£',
-    'EUR': '€',
-    'CAD': 'C$',
-    'AUD': 'A$',
-    'AED': 'AED ',
-    'SAR': 'SAR ',
-    'INR': '₹',
-};
+// Simplified: Only PKR for Pakistan, USD for everyone else
+const PKR_TO_USD = 278;
 
 export const useGeolocation = (): GeolocationData => {
     const [geoData, setGeoData] = useState<GeolocationData>({
         countryCode: 'US',
         currency: 'USD',
-        exchangeRate: 1,
+        currencySymbol: '$',
         isPakistan: false,
-        isIndia: false,
         isLocal: false,
         loading: true
     });
@@ -62,23 +38,14 @@ export const useGeolocation = (): GeolocationData => {
                 }
 
                 const country = data.country_code || data.countryCode || 'US';
-                const currencyCode = data.currency_code || data.currency || 'USD';
-
                 const isPakistan = country === 'PK';
-                const isIndia = country === 'IN';
-                const isLocal = isPakistan || isIndia;
-
-                // Check if we support this currency, otherwise default to USD
-                const finalCurrency = RATES[currencyCode] ? currencyCode : 'USD';
-                const finalExchangeRate = RATES[finalCurrency] || 1;
 
                 setGeoData({
                     countryCode: country,
-                    currency: finalCurrency,
-                    exchangeRate: finalExchangeRate,
+                    currency: isPakistan ? 'PKR' : 'USD',
+                    currencySymbol: isPakistan ? 'Rs ' : '$',
                     isPakistan,
-                    isIndia,
-                    isLocal,
+                    isLocal: isPakistan,
                     loading: false
                 });
 
@@ -88,9 +55,8 @@ export const useGeolocation = (): GeolocationData => {
                 setGeoData({
                     countryCode: 'US',
                     currency: 'USD',
-                    exchangeRate: 1,
+                    currencySymbol: '$',
                     isPakistan: false,
-                    isIndia: false,
                     isLocal: false,
                     loading: false
                 });
@@ -104,35 +70,20 @@ export const useGeolocation = (): GeolocationData => {
 };
 
 // Helper function to format price based on geolocation
+// Converts PKR base price to either PKR or USD with 60% markup
 export const formatGeoPrice = (
-    baseUsdAmount: number,
+    basePricePKR: number,
     geoData: GeolocationData
 ): string => {
-    let baseAmount = baseUsdAmount;
+    if (geoData.isPakistan) {
+        // Pakistan: Show original PKR price
+        return `${geoData.currencySymbol}${basePricePKR.toLocaleString()}`;
+    } else {
+        // Non-Pakistan: Convert to USD with 60% markup
+        const baseUSD = basePricePKR / PKR_TO_USD;
+        const markedUpUSD = baseUSD * 1.6;
+        const roundedUSD = Math.ceil(markedUpUSD / 5) * 5; // Round to nearest $5
 
-    // Increase rates by 60% for non-PK/IN countries
-    if (!geoData.isLocal) {
-        baseAmount = baseUsdAmount * 1.6;
+        return `${geoData.currencySymbol}${roundedUSD.toLocaleString()}`;
     }
-
-    const converted = Math.round(baseAmount * geoData.exchangeRate);
-
-    // Round to nice numbers
-    const rounded = geoData.currency === 'PKR'
-        ? Math.ceil(converted / 500) * 500
-        : Math.ceil(converted / 5) * 5;
-
-    const symbol = CURRENCY_SYMBOLS[geoData.currency] || '$';
-
-    return `${symbol}${new Intl.NumberFormat('en-US', {
-        style: 'decimal',
-        maximumFractionDigits: 0
-    }).format(rounded)}`;
 };
-
-// Helper to get currency symbol
-export const getCurrencySymbol = (currency: string): string => {
-    return CURRENCY_SYMBOLS[currency] || '$';
-};
-
-export { RATES, CURRENCY_SYMBOLS };

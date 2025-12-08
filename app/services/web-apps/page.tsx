@@ -7,7 +7,7 @@ import { HiCode } from 'react-icons/hi';
 import Link from 'next/link';
 import Header from '@/app/components/sections/Header';
 import Footer from '@/app/components/sections/Footer';
-import { useGeolocation, formatGeoPrice, getCurrencySymbol } from '@/app/lib/useGeolocation';
+import { useGeolocation, formatGeoPrice } from '@/app/lib/useGeolocation';
 
 export default function WebAppsPage() {
     const geoData = useGeolocation();
@@ -22,12 +22,11 @@ export default function WebAppsPage() {
         { name: 'Exclusive Premium', basePricePKR: 900000, features: ['Full Platform', 'AI Integration', 'Dedicated DevOps', 'SLA Support', '1 Year Support'], delivery: '3-4 months', icon: '🏆' }
     ];
 
-    // Convert PKR to USD base price, then apply geo pricing
+    // Apply geo pricing
     const packages = packagesData.map(pkg => ({
         ...pkg,
-        price: formatGeoPrice(pkg.basePricePKR / 278, geoData) // 278 is PKR to USD rate
+        price: formatGeoPrice(pkg.basePricePKR, geoData)
     }));
-
 
     return (
         <>
